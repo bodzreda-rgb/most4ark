@@ -45,6 +45,9 @@ begin execute 'select count(*) from (' || p_sql || ') q' into n; return n; end $
 \set cx  '''00000000-0000-0000-0000-000000000021'''
 \set cy  '''00000000-0000-0000-0000-000000000022'''
 
+-- fixtures sign up already-active users (account approval is exercised separately)
+update public.platform_settings set value = 'false' where key = 'require_account_approval';
+
 insert into auth.users (id, email, raw_user_meta_data) values
  (:sa,  'super@ms.test',  '{"full_name":"Super Admin","account_type":"admin"}'),   -- admin request must be ignored
  (:rev, 'rev@ms.test',    '{"full_name":"Reviewer"}'),

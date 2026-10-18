@@ -130,6 +130,15 @@ export function Register() {
 export function Suspended() {
   const { t } = useI18n();
   const { profile, signOut } = useAuth();
+  if (profile?.status === 'active') return <Navigate to={homeFor(profile)} replace />;   // accepted while waiting
+  if (profile?.status === 'pending') {
+    return (
+      <AuthFrame title={t('auth.pending_title')}>
+        <Alert tone="info">{t('auth.pending_body')}</Alert>
+        <p style={{ textAlign: 'center', marginTop: 16 }}><Button onClick={signOut}>{t('auth.logout')}</Button></p>
+      </AuthFrame>
+    );
+  }
   return (
     <AuthFrame title={t('auth.suspended_title')}>
       <Alert tone="danger">{t('auth.suspended_body')}{profile?.status_reason ? ` — ${profile.status_reason}` : ''}</Alert>

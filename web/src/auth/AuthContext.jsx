@@ -52,7 +52,8 @@ export function AuthProvider({ children }) {
 
   // A lawyer waiting for review must notice the admin's decision without logging in again:
   // re-read the account every 15s and whenever the tab regains focus.
-  const waitingLawyer = profile?.account_type === 'lawyer' && lawyer?.verification_status !== 'approved';
+  const waitingLawyer = profile?.status === 'pending'
+    || (profile?.account_type === 'lawyer' && lawyer?.verification_status !== 'approved');
   const uid = session?.user?.id;
   useEffect(() => {
     if (!waitingLawyer || !uid) return undefined;

@@ -27,6 +27,7 @@ export default function Overview() {
           <div className="grid cols-4" style={{ marginBottom: 16 }}>
             <Card><Stat value={s.total_users} label={t('admin.total_users')} /></Card>
             <Card><Stat value={s.approved_lawyers} label={t('admin.approved_lawyers')} /></Card>
+            <Card><Link to="/admin/users?status=pending" style={{ color: 'inherit', textDecoration: 'none' }}><Stat value={s.pending_accounts ?? 0} label={t('admin.pending_accounts')} tone={s.pending_accounts ? 'warn' : ''} /></Link></Card>
             <Card><Link to="/admin/lawyers?status=submitted" style={{ color: 'inherit', textDecoration: 'none' }}><Stat value={s.pending_applications} label={t('admin.pending_applications')} tone={s.pending_applications ? 'warn' : ''} /></Link></Card>
             <Card><Stat value={`${s.rejected_applications} / ${s.suspended_lawyers}`} label={t('admin.rejected_suspended')} /></Card>
             <Card><Stat value={s.total_consultations} label={t('admin.total_consultations')} /></Card>

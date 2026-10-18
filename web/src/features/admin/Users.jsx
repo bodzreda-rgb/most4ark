@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useI18n } from '../../lib/i18n.jsx';
@@ -11,7 +12,8 @@ export default function AdminUsers() {
   const { tz, can, user } = useAuth();
   const toast = useToast(); const onError = useErrorToast();
   const [q, setQ] = useState(''); const dq = useDebounced(q);
-  const [type, setType] = useState(''); const [status, setStatus] = useState('');
+  const [sp] = useSearchParams();
+  const [type, setType] = useState(''); const [status, setStatus] = useState(sp.get('status') || '');
   const [act, setAct] = useState(null);
   const state = useAsync(async () => unwrap(await supabase.rpc('admin_list_users', { p_type: type || null, p_status: status || null, p_search: dq || null })), [type, status, dq]);
   const apply = async (reason) => {
@@ -26,7 +28,7 @@ export default function AdminUsers() {
         <Select style={{ maxWidth: 180 }} value={type} onChange={(e) => setType(e.target.value)} aria-label={t('admin.account_type')}>
           <option value="">{t('common.all')}</option>{['client', 'lawyer', 'admin'].map((x) => <option key={x} value={x}>{t(`role.${x}`)}</option>)}</Select>
         <Select style={{ maxWidth: 180 }} value={status} onChange={(e) => setStatus(e.target.value)} aria-label={t('common.status')}>
-          <option value="">{t('common.all_statuses')}</option>{['active', 'suspended', 'deactivated'].map((x) => <option key={x} value={x}>{t(`acct.${x}`)}</option>)}</Select>
+          <option value="">{t('common.all_statuses')}</option>{['pending', 'active', 'suspended', 'deactivated'].map((x) => <option key={x} value={x}>{t(`acct.${x}`)}</option>)}</Select>
       </div>
       <AsyncView state={state} empty={<Empty glyph="👥" title={t('admin.no_users')} />}>
         {(rows) => (
@@ -37,10 +39,16 @@ export default function AdminUsers() {
                 <td>{u.identity_hidden ? <span className="muted">{t('admin.identity_hidden')}</span> : u.full_name}</td>
                 <td className="ltr">{u.identity_hidden ? '—' : u.email}</td>
                 <td>{t(`role.${u.account_type}`)}</td><td><StatusBadge status={u.status} prefix="acct" /></td><td>{formatDate(u.created_at, tz, lang)}</td>
-                <td className="nowrap">{can('users.manage') && u.id !== user.id && u.account_type !== 'admin' && (u.status === 'active'
-                  ? <Button size="sm" variant="danger" onClick={() => setAct({ id: u.id, status: 'suspended' })}>{t('admin.suspend_account')}</Button>
-                  : <Button size="sm" onClick={() => setAct({ id: u.id, status: 'active' })}>{t('admin.activate_account')}</Button>)}</td></tr>))}</tbody></table></div>)}
+                <td className="nowrap">{can('users.manage') && u.id !== user.id && u.account_type !== 'admin' && (
+                  u.status === 'pending' ? (
+                    <div className="row" style={{ gap: 6, flexWrap: 'nowrap' }}>
+                      <Button size="sm" variant="primary" onClick={() => setAct({ id: u.id, status: 'active', accept: true })}>✓ {t('admin.accept_account')}</Button>
+                      <Button size="sm" variant="danger" onClick={() => setAct({ id: u.id, status: 'deactivated', reject: true })}>{t('admin.reject_account')}</Button>
+                    </div>)
+                  : u.status === 'active'
+                    ? <Button size="sm" variant="danger" onClick={() => setAct({ id: u.id, status: 'suspended' })}>{t('admin.suspend_account')}</Button>
+                    : <Button size="sm" onClick={() => setAct({ id: u.id, status: 'active' })}>{t('admin.activate_account')}</Button>)}</td></tr>))}</tbody></table></div>)}
       </AsyncView>
-      {act && <ConfirmDialog title={t('admin.account_controls')} message={t('common.cannot_undo')} danger={act.status !== 'active'} requireReason={act.status !== 'active'} onCancel={() => setAct(null)} onConfirm={apply} />}
+      {act && <ConfirmDialog title={act.accept ? t('admin.accept_account') : act.reject ? t('admin.reject_account') : t('admin.account_controls')} message={act.accept ? t('admin.accept_account_msg') : act.reject ? t('admin.reject_account_msg') : t('common.cannot_undo')} danger={act.status !== 'active'} requireReason={act.status !== 'active'} onCancel={() => setAct(null)} onConfirm={apply} />}
     </>);
 }
