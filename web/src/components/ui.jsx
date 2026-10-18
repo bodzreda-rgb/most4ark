@@ -1,5 +1,5 @@
 import { cloneElement, createContext, useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useI18n } from '../lib/i18n.jsx';
 import { errorKey } from '../lib/errors.js';
 
@@ -79,10 +79,25 @@ const HERO_BY_SECTION = [
 ];
 export const heroFor = (path) => (HERO_BY_SECTION.find(([re]) => re.test(path)) || [null, 'statue'])[1];
 
+/** Large photo cards that link to the main sections of a role's home page. */
+export const PhotoTiles = ({ items }) => (
+  <div className="photo-tiles">
+    {items.map((i) => (
+      <Link key={i.to} to={i.to} className="photo-tile" style={{ backgroundImage: `url(/img/${i.img}.jpg)` }}>
+        <span className="photo-tile-label">{i.label}</span>
+        <span className="photo-tile-go" aria-hidden="true">↗</span>
+      </Link>
+    ))}
+  </div>
+);
+
+const HOME_PATHS = ['/lawyer', '/admin', '/client'];
+
 export const PageHead = ({ title, subtitle, actions }) => {
   const { pathname } = useLocation();
+  const home = HOME_PATHS.includes(pathname.replace(/\/$/, ''));
   return (
-    <div className="page-head page-hero" style={{ backgroundImage: `url(/img/${heroFor(pathname)}.jpg)` }}>
+    <div className={`page-head page-hero${home ? ' hero-home' : ''}`} style={{ backgroundImage: `url(/img/${heroFor(pathname)}.jpg)` }}>
       <div className="page-hero-text"><h1>{title}</h1>{subtitle && <p style={{ margin: 0 }}>{subtitle}</p>}</div>
       {actions && <div className="row">{actions}</div>}
     </div>

@@ -6,7 +6,7 @@ import { useI18n } from '../../lib/i18n.jsx';
 import { useAsync, unwrap } from '../../lib/hooks.js';
 import { dayKeyOf, formatDateTime, todayKey, formatDayKey } from '../../lib/dates.js';
 import { fmtMoney } from '../../lib/finance.js';
-import { AsyncView, Button, Card, Empty, Input, PageHead, Segmented, Stat, StatusBadge, useErrorToast } from '../../components/ui.jsx';
+import { AsyncView, Button, Card, Empty, Input, PageHead, PhotoTiles, Segmented, Stat, StatusBadge, useErrorToast } from '../../components/ui.jsx';
 import { AgendaItem, groupByDay, useSchedule } from './Calendar.jsx';
 import EventModal from './EventModal.jsx';
 import { usePublicSettings } from '../../lib/settings.js';
@@ -98,6 +98,12 @@ export default function Dashboard() {
     <>
       <PageHead title={t('nav.dashboard')} subtitle={t('dash.subtitle', { n: rangeDays })}
         actions={<><Button variant="primary" onClick={() => setEditing({ defaults: { start: `${today}T10:00` } })}>➕ {t('cal.new_event')}</Button></>} />
+      <PhotoTiles items={[
+        { to: '/lawyer/cases', img: 'gavel', label: t('nav.cases') },
+        { to: '/lawyer/clients', img: 'suit', label: t('nav.clients') },
+        { to: '/lawyer/library', img: 'library', label: t('nav.library') },
+        { to: '/lawyer/calendar', img: 'books', label: t('nav.calendar') },
+      ]} />
       <AsyncView state={sum}>
         {() => (
           <div className="grid cols-4" style={{ marginBottom: 16 }}>

@@ -4,7 +4,7 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import { useI18n } from '../../lib/i18n.jsx';
 import { useAsync, unwrap } from '../../lib/hooks.js';
 import { formatDateTime } from '../../lib/dates.js';
-import { AsyncView, Card, Empty, PageHead, Stat, StatusBadge } from '../../components/ui.jsx';
+import { AsyncView, Card, Empty, PageHead, PhotoTiles, Stat, StatusBadge } from '../../components/ui.jsx';
 
 export default function Overview() {
   const { t, lang } = useI18n();
@@ -16,6 +16,12 @@ export default function Overview() {
   return (
     <>
       <PageHead title={t('nav.overview')} subtitle={t('admin.overview_sub')} />
+      <PhotoTiles items={[
+        { to: '/admin/lawyers', img: 'suit', label: t('nav.lawyers') },
+        { to: '/admin/consultations', img: 'columns', label: t('nav.consultations') },
+        { to: '/admin/library', img: 'library', label: t('nav.library') },
+        { to: '/admin/templates', img: 'contract', label: t('nav.templates') },
+      ]} />
       <AsyncView state={stats}>
         {(s) => (
           <div className="grid cols-4" style={{ marginBottom: 16 }}>

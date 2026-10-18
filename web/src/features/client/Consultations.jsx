@@ -8,7 +8,7 @@ import { formatDate } from '../../lib/dates.js';
 import { MIME_DOCS, uploadFile, validateFile } from '../../lib/storage.js';
 import { usePublicSettings } from '../../lib/settings.js';
 import {
-  Alert, AsyncView, Button, Checkbox, Disclaimer, Empty, Field, Input, PageHead, SearchBox,
+  Alert, AsyncView, Button, Checkbox, Disclaimer, Empty, Field, Input, PageHead, PhotoTiles, SearchBox,
   Select, StatusBadge, Textarea, useErrorToast, useToast,
 } from '../../components/ui.jsx';
 
@@ -30,6 +30,10 @@ export function MyConsultations() {
   return (
     <>
       <PageHead title={t('nav.my_consultations')} actions={<Link className="btn btn-primary" to="/client/new">➕ {t('nav.new_consultation')}</Link>} />
+      <PhotoTiles items={[
+        { to: '/client/new', img: 'columns', label: t('nav.new_consultation') },
+        { to: '/client/profile', img: 'suit', label: t('nav.profile') },
+      ]} />
       <div className="row" style={{ marginBottom: 16 }}>
         <SearchBox value={q} onChange={setQ} placeholder={t('common.search')} />
         <Select style={{ maxWidth: 220 }} value={status} onChange={(e) => setStatus(e.target.value)} aria-label={t('common.status')}>
