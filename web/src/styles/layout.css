@@ -72,3 +72,12 @@
 .auth-wrap > * { position: relative; }
 .auth-card { background: linear-gradient(145deg, rgba(46,42,38,.82), rgba(28,25,22,.82)); }
 @media (max-width: 700px) { .page-hero { min-height: 104px; padding: var(--s4); } .page-hero h1 { font-size: 1.25rem; } }
+
+/* ---------- avatar (app logo) ---------- */
+.avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #fff; flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(205,178,140,.55); }
+.user-chip { display: flex; align-items: center; gap: 10px; line-height: 1.35; min-width: 0; }
+.sidebar .user-chip { padding: 8px; border-top: 1px solid var(--border); }
+.sidebar .user-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.topbar .user-chip .avatar { width: 34px; height: 34px; }
+@media (max-width: 900px) { .topbar .user-chip .muted { display: none; } }

@@ -5,7 +5,10 @@ import { useI18n } from '../lib/i18n.jsx';
 import { supabase } from '../lib/supabase.js';
 import { Button } from './ui.jsx';
 
-export const Logo = () => <img src="/logo.png" alt="" aria-hidden="true" />;
+export const Logo = () => <img src="/logo-192.png" alt="" aria-hidden="true" />;
+
+/** Round avatar: the app logo, with the user's name as its accessible label. */
+export const Avatar = ({ name }) => <img className="avatar" src="/logo-192.png" alt="" title={name || undefined} aria-hidden="true" />;
 
 export const BrandName = () => (
   <span className="brand-name"><span className="brand-ar">مستشارك</span><small className="brand-en">Mostshark</small></span>
@@ -49,12 +52,13 @@ export function AppShell({ nav, base }) {
             </NavLink>
           ))}
         </nav>
-        <div className="small" style={{ padding: '0 8px', color: 'var(--muted)' }}>{profile?.full_name}</div>
+        <div className="user-chip"><Avatar name={profile?.full_name} /><span className="small">{profile?.full_name}</span></div>
       </aside>
       <div className="main">
         <header className="topbar">
-          <div className="brand" style={{ color: 'var(--ink)', padding: 0 }}>
-            <span className="small muted">{t('nav.' + (profile?.account_type || 'client'))}</span>
+          <div className="user-chip">
+            <Avatar name={profile?.full_name} />
+            <span className="small"><strong>{profile?.full_name}</strong><br /><span className="muted">{t('nav.' + (profile?.account_type || 'client'))}</span></span>
           </div>
           <div className="grow" />
           <Button variant="ghost" size="sm" onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} aria-label="language">{lang === 'ar' ? 'English' : 'العربية'}</Button>
