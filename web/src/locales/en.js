@@ -414,6 +414,7 @@ export const en = {
   "err.not_a_lawyer": "That account is not a lawyer.",
   "err.potential_conflict": "A potential conflict of interest exists.",
   "err.rate_limited": "Too many requests. Try again later.",
+  "err.email_rate_limited": "The hourly limit for sending emails was reached. Try again in an hour or contact the administrator.",
   "err.reason_required": "A reason is required.",
   "err.reopen_not_authorized": "Only the case owner can reopen it.",
   "err.title_required": "A title is required.",

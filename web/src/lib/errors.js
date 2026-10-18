@@ -16,6 +16,7 @@ export function errorKey(error) {
   if (code === '42501' || /row-level security|permission denied/i.test(msg)) return 'err.forbidden';
   if (code === '23514') return 'err.invalid_value';
   if (code === '54000') return 'err.rate_limited';
+  if (code === 'over_email_send_rate_limit' || /email rate limit/i.test(msg)) return 'err.email_rate_limited';
   if (/Invalid login credentials/i.test(msg)) return 'err.bad_login';
   if (/already registered|already been registered/i.test(msg)) return 'err.email_taken';
   if (/Email not confirmed/i.test(msg)) return 'err.email_unconfirmed';

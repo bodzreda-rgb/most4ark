@@ -414,6 +414,7 @@ export const ar = {
   "err.not_a_lawyer": "الحساب المطلوب ليس حساب محامٍ.",
   "err.potential_conflict": "يوجد تعارض مصالح محتمل.",
   "err.rate_limited": "تجاوزت الحد المسموح من الطلبات. حاول لاحقًا.",
+  "err.email_rate_limited": "تم الوصول للحد المسموح لإرسال رسائل البريد حاليًا. حاول بعد ساعة أو تواصل مع الإدارة.",
   "err.reason_required": "السبب مطلوب.",
   "err.reopen_not_authorized": "لا يملك إعادة فتح القضية سوى مالكها.",
   "err.title_required": "العنوان مطلوب.",
