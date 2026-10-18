@@ -4,21 +4,21 @@
   position: sticky; top: 0; height: 100vh; padding: var(--s4) var(--s3); gap: var(--s3); flex-shrink: 0; }
 .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 12px; color: var(--ink); font-weight: 700; }
 .brand svg, .brand img { width: 40px; height: 40px; }
-.brand img { border-radius: 50%; background: #fff; object-fit: cover; box-shadow: 0 0 0 2px rgba(224,96,26,.5); }
+.brand img { border-radius: 50%; background: #fff; object-fit: cover; box-shadow: 0 0 0 2px rgba(205,178,140,.5); }
 .nav { display: flex; flex-direction: column; gap: 3px; overflow-y: auto; flex: 1; }
 .nav a { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 999px; color: var(--muted); text-decoration: none; font-size: var(--fs-md); }
 .nav a:hover { background: var(--surface-2); color: var(--ink); }
-.nav a.active { background: linear-gradient(180deg, #f27a35, #d4551a); color: #fff; box-shadow: 0 6px 16px rgba(224,96,26,.3); }
+.nav a.active { background: linear-gradient(180deg, #dcc6a2, #bfa07a); color: var(--on-accent); box-shadow: 0 6px 16px rgba(205,178,140,.3); }
 .nav .ico { width: 20px; text-align: center; }
 .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.topbar { display: flex; align-items: center; gap: var(--s3); padding: 8px var(--s5); background: rgba(18,10,6,.55); backdrop-filter: blur(14px);
+.topbar { display: flex; align-items: center; gap: var(--s3); padding: 8px var(--s5); background: rgba(22,20,18,.62); backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20; }
 .content { padding: var(--s5); width: 100%; max-width: 1200px; margin-inline: auto; flex: 1; }
 .bottomnav { display: none; }
 .page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s3); margin-bottom: var(--s4); flex-wrap: wrap; }
 .page-head h1 { margin: 0; }
 .bell { position: relative; }
-.bell .count { position: absolute; top: -2px; inset-inline-end: -2px; background: var(--accent); color: #fff;
+.bell .count { position: absolute; top: -2px; inset-inline-end: -2px; background: var(--accent); color: var(--on-accent);
   min-width: 17px; height: 17px; border-radius: 9px; font-size: .66rem; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
 .auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: var(--s4); }
 .auth-card { width: min(420px, 100%); background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.025)); border: 1px solid var(--border);
@@ -35,22 +35,40 @@
   .content { padding: var(--s4); padding-bottom: 96px; }
   .topbar { padding: 6px var(--s4); }
   /* floating glass pill, like the reference */
-  .bottomnav { display: flex; position: fixed; bottom: 12px; inset-inline: 14px; background: rgba(40,24,15,.72); backdrop-filter: blur(18px);
+  .bottomnav { display: flex; position: fixed; bottom: 12px; inset-inline: 14px; background: rgba(44,40,36,.8); backdrop-filter: blur(18px);
     border: 1px solid var(--border); border-radius: 999px; box-shadow: 0 12px 34px rgba(0,0,0,.5);
     z-index: 30; justify-content: space-around; padding: 6px 6px; }
   .bottomnav a, .bottomnav button { display: flex; flex-direction: column; align-items: center; gap: 0; font-size: .62rem; color: var(--muted);
     text-decoration: none; padding: 5px 8px; background: none; border: 0; cursor: pointer; flex: 1; border-radius: 999px; }
-  .bottomnav a.active { color: #fff; background: linear-gradient(180deg, #f27a35, #d4551a); font-weight: 700; }
+  .bottomnav a.active { color: var(--on-accent); background: linear-gradient(180deg, #dcc6a2, #bfa07a); font-weight: 700; }
   .kv { grid-template-columns: 1fr; }
 }
 /* calendar */
 .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; background: rgba(255,255,255,.03); }
 .cal-head { background: rgba(255,255,255,.04); padding: 6px; text-align: center; font-size: var(--fs-sm); color: var(--muted); font-weight: 600; }
 .cal-cell { min-height: 100px; border-top: 1px solid var(--border); border-inline-start: 1px solid var(--border); padding: 4px; cursor: pointer; }
-.cal-cell:hover { background: rgba(224,96,26,.06); }
+.cal-cell:hover { background: rgba(205,178,140,.06); }
 .cal-cell.out { background: rgba(0,0,0,.25); color: var(--muted); }
-.cal-cell.today .dnum { background: var(--accent); color: #fff; }
+.cal-cell.today .dnum { background: var(--accent); color: var(--on-accent); }
 .cal-cell .dnum { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 50%; font-size: .78rem; font-weight: 600; }
 .cal-ev { display: block; font-size: .68rem; padding: 1px 6px; border-radius: 6px; margin-top: 2px; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 0; width: 100%; text-align: start; cursor: pointer; }
 .cal-ev.cancelled { opacity: .5; text-decoration: line-through; }
 @media (max-width: 700px) { .cal-cell { min-height: 60px; } .cal-ev { font-size: .6rem; } }
+
+/* ---------- luxury photography ---------- */
+.page-hero { position: relative; overflow: hidden; align-items: flex-end; min-height: 128px; padding: var(--s5); border-radius: var(--r-lg);
+  border: 1px solid var(--border); background-size: cover; background-position: center 35%; box-shadow: var(--shadow); }
+.page-hero::before { content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(22,20,18,.35) 0%, rgba(22,20,18,.88) 100%),
+              linear-gradient(90deg, rgba(22,20,18,.75), rgba(22,20,18,.15)); }
+[dir="rtl"] .page-hero::before { background: linear-gradient(180deg, rgba(22,20,18,.35) 0%, rgba(22,20,18,.88) 100%),
+              linear-gradient(270deg, rgba(22,20,18,.75), rgba(22,20,18,.15)); }
+.page-hero > * { position: relative; }
+.page-hero h1 { font-size: 1.5rem; margin: 0 0 2px; text-shadow: 0 2px 14px rgba(0,0,0,.5); }
+.page-hero-text p { color: #d9cfc0; font-size: var(--fs-sm); }
+.auth-wrap { background-size: cover; background-position: center; position: relative; }
+.auth-wrap::before { content: ''; position: absolute; inset: 0;
+  background: radial-gradient(900px 600px at 50% 40%, rgba(22,20,18,.55), rgba(22,20,18,.93)); }
+.auth-wrap > * { position: relative; }
+.auth-card { background: linear-gradient(145deg, rgba(46,42,38,.82), rgba(28,25,22,.82)); }
+@media (max-width: 700px) { .page-hero { min-height: 104px; padding: var(--s4); } .page-hero h1 { font-size: 1.25rem; } }

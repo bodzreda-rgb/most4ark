@@ -3,9 +3,9 @@ html, body, #root { min-height: 100%; }
 body {
   margin: 0; color: var(--text);
   background:
-    radial-gradient(900px 500px at 85% -10%, rgba(224,96,26,.22), transparent 60%),
-    radial-gradient(700px 500px at -10% 110%, rgba(224,96,26,.10), transparent 60%),
-    linear-gradient(180deg, #1a0f09, #0e0704) fixed;
+    radial-gradient(900px 500px at 85% -10%, rgba(205,178,140,.10), transparent 60%),
+    radial-gradient(700px 500px at -10% 110%, rgba(205,178,140,.05), transparent 60%),
+    linear-gradient(180deg, #1c1917, #110f0e) fixed;
   font-family: var(--font); font-size: var(--fs-md); line-height: 1.75;
   -webkit-font-smoothing: antialiased;
 }
@@ -15,7 +15,7 @@ p { margin: 0 0 var(--s3); }
 a { color: var(--accent-2); text-decoration: none; }
 a:hover { text-decoration: underline; }
 button, input, select, textarea { font: inherit; color: inherit; }
-::selection { background: rgba(224,96,26,.45); }
+::selection { background: rgba(205,178,140,.35); }
 :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
 ::-webkit-scrollbar { width: 8px; height: 8px; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 8px; }
 .muted { color: var(--muted); } .small { font-size: var(--fs-sm); }

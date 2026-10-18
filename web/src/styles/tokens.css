@@ -1,35 +1,36 @@
 :root {
   color-scheme: dark;
-  /* dark espresso + burnt-orange glass theme */
-  --ink: #fff4ea;            /* headings / strong text (light on dark) */
-  --ink-2: #f1dccb;
-  --accent: #e0601a;         /* burnt orange */
-  --accent-2: #ff8a3d;       /* lighter orange (links, highlights) */
-  --accent-soft: rgba(224,96,26,.16);
-  --gold: #ff8a3d;
-  --gold-soft: rgba(255,138,61,.14);
-  --bg: #120a06;
-  --surface: rgba(255,255,255,.045);
-  --surface-solid: #1d120b;
-  --surface-2: rgba(255,255,255,.07);
-  --border: rgba(255,255,255,.09);
-  --text: #eadfd6;
-  --muted: #a8998c;
-  --success: #5fc48a;  --success-soft: rgba(95,196,138,.15);
-  --warn: #f2b44f;     --warn-soft: rgba(242,180,79,.15);
-  --danger: #f27468;   --danger-soft: rgba(242,116,104,.15);
-  --info: #74b0ec;     --info-soft: rgba(116,176,236,.15);
+  /* warm charcoal + champagne/taupe luxury theme */
+  --ink: #f6f0e6;            /* headings / strong text (cream) */
+  --ink-2: #e4d9c8;
+  --accent: #cdb28c;         /* champagne / tan (primary action) */
+  --accent-2: #e2cba6;       /* lighter champagne (links, highlights) */
+  --on-accent: #1c1916;      /* text on champagne */
+  --accent-soft: rgba(205,178,140,.14);
+  --gold: #e2cba6;
+  --gold-soft: rgba(205,178,140,.12);
+  --bg: #161412;
+  --surface: rgba(255,255,255,.04);
+  --surface-solid: #26221f;
+  --surface-2: rgba(255,255,255,.06);
+  --border: rgba(255,255,255,.07);
+  --text: #e9e1d5;
+  --muted: #a1978a;
+  --success: #8cc9a1;  --success-soft: rgba(140,201,161,.14);
+  --warn: #e6bd78;     --warn-soft: rgba(230,189,120,.14);
+  --danger: #e58f84;   --danger-soft: rgba(229,143,132,.14);
+  --info: #9bbbd9;     --info-soft: rgba(155,187,217,.14);
   /* event kinds (also distinguished by glyph, never colour alone) */
-  --k-hearing: #b8413a;
-  --k-appointment: #d4651f;
-  --k-task: #7a62b8;
-  --k-payment_deadline: #b58a1e;
-  --k-case_deadline: #c4571a;
-  --k-personal: #6b6258;
+  --k-hearing: #8a4a44;
+  --k-appointment: #8d7451;
+  --k-task: #6e6290;
+  --k-payment_deadline: #9a7c33;
+  --k-case_deadline: #94603c;
+  --k-personal: #5d554c;
   /* spacing / radii / type — compact */
   --s1: 4px; --s2: 8px; --s3: 10px; --s4: 14px; --s5: 20px; --s6: 28px; --s7: 40px;
-  --r-sm: 12px; --r-md: 18px; --r-lg: 24px;
-  --shadow: 0 8px 28px rgba(0,0,0,.35);
+  --r-sm: 14px; --r-md: 20px; --r-lg: 28px;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
   --font: 'Noto Naskh Arabic', 'Amiri', 'Segoe UI', Tahoma, system-ui, sans-serif;
   --font-head: 'Amiri', 'Noto Naskh Arabic', serif;
   --fs-sm: .78rem; --fs-md: .88rem; --fs-lg: 1.05rem; --fs-xl: 1.3rem;

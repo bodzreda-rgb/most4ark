@@ -1,4 +1,5 @@
 import { cloneElement, createContext, useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useI18n } from '../lib/i18n.jsx';
 import { errorKey } from '../lib/errors.js';
 
@@ -70,12 +71,23 @@ export const Stat = ({ value, label, tone }) => (
   <div className={`stat ${tone || ''}`}><span className="num">{value}</span><span className="lbl">{label}</span></div>
 );
 
-export const PageHead = ({ title, subtitle, actions }) => (
-  <div className="page-head">
-    <div><h1>{title}</h1>{subtitle && <p className="muted" style={{ margin: 0 }}>{subtitle}</p>}</div>
-    {actions && <div className="row">{actions}</div>}
-  </div>
-);
+/** Photo shown behind each page header, chosen from the section of the app. */
+const HERO_BY_SECTION = [
+  [/\/library/, 'library'], [/\/templates/, 'contract'], [/\/(directory|clients|users|lawyers)/, 'suit'],
+  [/\/(consultations|new)/, 'columns'], [/\/(cases|calendar)/, 'gavel'], [/\/(finance|reports)/, 'contract'],
+  [/\/(audit|settings|notifications|profile)/, 'books'],
+];
+export const heroFor = (path) => (HERO_BY_SECTION.find(([re]) => re.test(path)) || [null, 'statue'])[1];
+
+export const PageHead = ({ title, subtitle, actions }) => {
+  const { pathname } = useLocation();
+  return (
+    <div className="page-head page-hero" style={{ backgroundImage: `url(/img/${heroFor(pathname)}.jpg)` }}>
+      <div className="page-hero-text"><h1>{title}</h1>{subtitle && <p style={{ margin: 0 }}>{subtitle}</p>}</div>
+      {actions && <div className="row">{actions}</div>}
+    </div>
+  );
+};
 
 const TONES = {
   approved: 'success', answered: 'success', completed: 'success', paid: 'success', active: 'success', published: 'success', verified: 'success', closed: 'neutral',

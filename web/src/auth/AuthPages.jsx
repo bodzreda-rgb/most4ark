@@ -10,7 +10,7 @@ import { Logo, BrandName } from '../components/Layout.jsx';
 function AuthFrame({ title, children }) {
   const { t, lang, setLang } = useI18n();
   return (
-    <div className="auth-wrap">
+    <div className="auth-wrap" style={{ backgroundImage: 'url(/img/statue.jpg)' }}>
       <div className="auth-card">
         <div className="brand"><Logo /><BrandName /></div>
         <p className="muted" style={{ textAlign: 'center' }}>{t('app.tagline')}</p>
