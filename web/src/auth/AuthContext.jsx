@@ -50,6 +50,19 @@ export function AuthProvider({ children }) {
     return () => { alive = false; sub.subscription.unsubscribe(); };
   }, [loadAccount]);
 
+  // A lawyer waiting for review must notice the admin's decision without logging in again:
+  // re-read the account every 15s and whenever the tab regains focus.
+  const waitingLawyer = profile?.account_type === 'lawyer' && lawyer?.verification_status !== 'approved';
+  const uid = session?.user?.id;
+  useEffect(() => {
+    if (!waitingLawyer || !uid) return undefined;
+    const reload = () => { if (document.visibilityState === 'visible') loadAccount(uid); };
+    const iv = setInterval(reload, 15000);
+    document.addEventListener('visibilitychange', reload);
+    window.addEventListener('focus', reload);
+    return () => { clearInterval(iv); document.removeEventListener('visibilitychange', reload); window.removeEventListener('focus', reload); };
+  }, [waitingLawyer, uid, loadAccount]);
+
   const value = useMemo(() => ({
     session, user: session?.user || null, profile, lawyer, adminRole, permissions, loading,
     can: (perm) => permissions.includes(perm),

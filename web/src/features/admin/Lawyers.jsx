@@ -94,6 +94,7 @@ export function AdminLawyerDetail() {
                   <Button size="sm" variant="danger" onClick={() => setAction('reject')}>{t('admin.reject')}</Button></>}
                 {can('lawyers.manage') && st === 'approved' && <Button size="sm" variant="danger" onClick={() => setAction('suspend')}>{t('admin.suspend')}</Button>}
                 {can('lawyers.manage') && st === 'suspended' && <Button size="sm" variant="primary" onClick={() => setAction('reactivate')}>{t('admin.reactivate')}</Button>}</>} />
+            {st === 'draft' && <Alert tone="info" className="small" >{t('admin.draft_not_submitted')}</Alert>}
             <div className="grid cols-2" style={{ alignItems: 'start' }}>
               <div className="stack">
                 <Card title={t('admin.verified_identity')}>

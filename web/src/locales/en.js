@@ -24,6 +24,7 @@ export const en = {
   "admin.activate_account": "Activate account",
   "admin.answered_consultations": "Answered consultations",
   "admin.application": "Application",
+  "admin.draft_not_submitted": "The lawyer has not submitted this application yet. The Approve button appears after they complete their details (name, bar number, city, years of experience, specialization, bar card) and press Submit for review.",
   "admin.approve": "Approve",
   "admin.approve_msg": "The lawyer will be approved and given a public alias.",
   "admin.approved_lawyers": "Approved lawyers",

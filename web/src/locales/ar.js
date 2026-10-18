@@ -24,6 +24,7 @@ export const ar = {
   "admin.activate_account": "تفعيل الحساب",
   "admin.answered_consultations": "استشارات تمت الإجابة عنها",
   "admin.application": "طلب تحقق",
+  "admin.draft_not_submitted": "لم يُرسل المحامي طلبه للمراجعة بعد. يظهر زر القبول بعد أن يستكمل بياناته (الاسم ورقم القيد والمدينة وسنوات الخبرة والتخصص وصورة كارنيه النقابة) ويضغط «إرسال للمراجعة».",
   "admin.approve": "اعتماد",
   "admin.approve_msg": "سيتم اعتماد المحامي وإنشاء رمز مستعار له في الدليل.",
   "admin.approved_lawyers": "المحامون المعتمدون",
