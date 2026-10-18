@@ -1,0 +1,33 @@
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { min-height: 100%; }
+body {
+  margin: 0; color: var(--text);
+  background:
+    radial-gradient(900px 500px at 85% -10%, rgba(224,96,26,.22), transparent 60%),
+    radial-gradient(700px 500px at -10% 110%, rgba(224,96,26,.10), transparent 60%),
+    linear-gradient(180deg, #1a0f09, #0e0704) fixed;
+  font-family: var(--font); font-size: var(--fs-md); line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { margin: 0 0 var(--s3); line-height: 1.4; color: var(--ink); font-family: var(--font-head); font-weight: 700; }
+h1 { font-size: var(--fs-xl); } h2 { font-size: var(--fs-lg); } h3 { font-size: .98rem; }
+p { margin: 0 0 var(--s3); }
+a { color: var(--accent-2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button, input, select, textarea { font: inherit; color: inherit; }
+::selection { background: rgba(224,96,26,.45); }
+:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+::-webkit-scrollbar { width: 8px; height: 8px; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 8px; }
+.muted { color: var(--muted); } .small { font-size: var(--fs-sm); }
+.row { display: flex; gap: var(--s3); align-items: center; flex-wrap: wrap; }
+.row.between { justify-content: space-between; }
+.stack { display: flex; flex-direction: column; gap: var(--s3); }
+.grid { display: grid; gap: var(--s4); }
+.grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.grid.cols-4 { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.grow { flex: 1 1 auto; min-width: 0; }
+.ltr { direction: ltr; unicode-bidi: isolate; text-align: start; }   /* phone numbers, emails, ids */
+.nowrap { white-space: nowrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
