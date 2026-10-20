@@ -82,7 +82,9 @@ export default function ConsultationDetail({ role }) {
     ]);
     if (c.error) throw c.error;
     if (!c.data) return { missing: true };
-    return { c: c.data, msgs: unwrap(msgs), atts: unwrap(atts), hist: unwrap(hist) };
+    let person = null;
+    if (role === 'admin') person = ((await supabase.rpc('admin_consultation_people', { p_ids: [id] })).data || [])[0] || null;
+    return { c: c.data, msgs: unwrap(msgs), atts: unwrap(atts), hist: unwrap(hist), person };
   }, [id]);
 
   const send = async () => {
@@ -119,7 +121,7 @@ export default function ConsultationDetail({ role }) {
     <AsyncView state={state}>
       {(d) => {
         if (d.missing) return <Alert tone="warn">{t('common.not_found')}</Alert>;
-        const { c, msgs, atts, hist } = d;
+        const { c, msgs, atts, hist, person } = d;
         const closed = ['closed', 'rejected'].includes(c.status);
         const catName = c.category ? (lang === 'ar' ? c.category.name_ar : c.category.name_en) : '—';
         return (
@@ -131,6 +133,9 @@ export default function ConsultationDetail({ role }) {
               <div className="stack">
                 <Card title={t('cons.details')}>
                   <KV items={[
+                    person && [t('admin.client_name'), person.client_name],
+                    person && [t('auth.email'), <span key="pe" className="ltr">{person.client_email}</span>],
+                    person && [t('auth.phone'), <span key="pp" className="ltr">{person.client_phone || '—'}</span>],
                     [t('cons.category'), catName],
                     [t('cons.jurisdiction'), c.jurisdiction],
                     c.location_text && [t('cons.location'), c.location_text],

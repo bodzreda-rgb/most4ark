@@ -33,11 +33,11 @@ export default function AdminUsers() {
       <AsyncView state={state} empty={<Empty glyph="👥" title={t('admin.no_users')} />}>
         {(rows) => (
           <div className="table-wrap"><table className="table">
-            <thead><tr><th>{t('auth.full_name')}</th><th>{t('auth.email')}</th><th>{t('admin.account_type')}</th><th>{t('common.status')}</th><th>{t('admin.joined')}</th><th /></tr></thead>
+            <thead><tr><th>{t('auth.full_name')}</th><th>{t('auth.email')}</th><th>{t('auth.phone')}</th><th>{t('admin.account_type')}</th><th>{t('common.status')}</th><th>{t('admin.joined')}</th><th /></tr></thead>
             <tbody>{rows.map((u) => (
               <tr key={u.id}>
                 <td>{u.identity_hidden ? <span className="muted">{t('admin.identity_hidden')}</span> : u.full_name}</td>
-                <td className="ltr">{u.identity_hidden ? '—' : u.email}</td>
+                <td className="ltr">{u.identity_hidden ? '—' : u.email}</td><td className="ltr">{u.identity_hidden ? '—' : (u.phone || '—')}</td>
                 <td>{t(`role.${u.account_type}`)}</td><td><StatusBadge status={u.status} prefix="acct" /></td><td>{formatDate(u.created_at, tz, lang)}</td>
                 <td className="nowrap">{can('users.manage') && u.id !== user.id && u.account_type !== 'admin' && (
                   u.status === 'pending' ? (

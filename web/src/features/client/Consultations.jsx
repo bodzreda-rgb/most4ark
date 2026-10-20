@@ -93,12 +93,13 @@ export function NewConsultation() {
     setBusy(true);
     try {
       const id = crypto.randomUUID();
-      const row = unwrap(await supabase.from('consultations').insert({
+      const row = { id };   // no .select(): the new row is not readable inside the same insert statement
+      unwrap(await supabase.from('consultations').insert({
         id, client_id: user.id, title: f.title.trim(), category_id: Number(f.category_id), description: f.description.trim(),
         jurisdiction: f.jurisdiction.trim() || 'مصر', location_text: f.location_text.trim() || null,
         opposing_party: f.opposing_party.trim() || null, preferred_response: f.preferred_response,
         consent_privacy: true, consent_disclaimer: true,
-      }).select('id').single());
+      }));
       for (const file of files) {
         const up = await uploadFile('consultation-attachments', row.id, file);
         unwrap(await supabase.from('consultation_attachments').insert({

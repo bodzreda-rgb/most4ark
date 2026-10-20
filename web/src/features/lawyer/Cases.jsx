@@ -31,7 +31,8 @@ export function CaseModal({ item, defaults, onClose, onSaved }) {
       client_id: f.client_id || null, opposing_party: f.opposing_party.trim() || null, description: f.description.trim() || null, opened_on: f.opened_on || null };
     try {
       if (item) { row.status = f.status; unwrap(await supabase.from('cases').update(row).eq('id', item.id)); onSaved(item.id); }
-      else { const r = unwrap(await supabase.from('cases').insert({ ...row, lawyer_id: user.id, status: f.status }).select('id').single()); onSaved(r.id); }
+      else { const id = crypto.randomUUID();   // no .select(): the new row is not readable inside the same insert statement
+        unwrap(await supabase.from('cases').insert({ id, ...row, lawyer_id: user.id, status: f.status })); onSaved(id); }
       toast(t('common.saved'), 'success');
     } catch (e) { onError(e); } finally { setBusy(false); }
   };

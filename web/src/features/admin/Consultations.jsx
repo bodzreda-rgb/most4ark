@@ -17,7 +17,10 @@ export default function AdminConsultations() {
   const state = useAsync(async () => {
     let q = supabase.from('consultations').select('id, reference_no, title, status, created_at, category:consultation_categories(name_ar, name_en)').order('created_at', { ascending: false }).limit(200);
     if (status) q = q.eq('status', status);
-    return unwrap(await q);
+    const rows = unwrap(await q);
+    const people = await supabase.rpc('admin_consultation_people', { p_ids: rows.map((r) => r.id) });
+    const byId = Object.fromEntries((people.data || []).map((p) => [p.consultation_id, p]));
+    return rows.map((r) => ({ ...r, person: byId[r.id] }));
   }, [status]);
   return (
     <>
@@ -29,10 +32,10 @@ export default function AdminConsultations() {
       <AsyncView state={state} empty={<Empty glyph="💬" title={t('cons.none')} />}>
         {(rows) => (
           <div className="table-wrap"><table className="table">
-            <thead><tr><th>{t('cons.reference')}</th><th>{t('cons.title')}</th><th>{t('common.status')}</th><th>{t('cons.category')}</th><th>{t('common.created')}</th></tr></thead>
+            <thead><tr><th>{t('cons.reference')}</th><th>{t('cons.title')}</th><th>{t('admin.client_name')}</th><th>{t('common.status')}</th><th>{t('cons.category')}</th><th>{t('common.created')}</th></tr></thead>
             <tbody>{rows.map((c) => (
               <tr key={c.id} className="clickable" onClick={() => nav(`/admin/consultations/${c.id}`)}>
-                <td className="ltr">{c.reference_no}</td><td>{c.title}</td><td><StatusBadge status={c.status} prefix="cons.status" /></td>
+                <td className="ltr">{c.reference_no}</td><td>{c.title}</td><td>{c.person?.client_name || '—'}</td><td><StatusBadge status={c.status} prefix="cons.status" /></td>
                 <td>{c.category ? (lang === 'ar' ? c.category.name_ar : c.category.name_en) : '—'}</td><td className="nowrap">{formatDateTime(c.created_at, tz, lang)}</td></tr>))}</tbody></table></div>)}
       </AsyncView>
     </>);

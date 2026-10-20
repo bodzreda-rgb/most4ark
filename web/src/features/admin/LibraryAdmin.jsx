@@ -11,6 +11,46 @@ import { Alert, AsyncView, Button, Checkbox, Empty, Field, Input, Modal, PageHea
 const blank = { title: '', resource_type: 'law', category_id: '', law_name: '', article_number: '', issuing_authority: '', publication_date: '', effective_date: '', version: '',
   source: '', source_url: '', language: 'ar', body_text: '', tags: '', is_official_source: false, verification_status: 'unverified', last_verified_at: '', license_note: '' };
 
+/** Fast path: pick a file, give it a title and category, and publish it for the lawyers. */
+function QuickUpload({ cats, onClose, onSaved }) {
+  const { t, lang } = useI18n();
+  const toast = useToast(); const onError = useErrorToast();
+  const [f, setF] = useState({ title: '', resource_type: 'reference', category_id: '' });
+  const [file, setFile] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const pick = (e) => {
+    const x = e.target.files?.[0] || null; setFile(x);
+    if (x && !f.title) setF({ ...f, title: x.name.replace(/.[^.]+$/, '') });
+  };
+  const save = async () => {
+    if (!file) { toast(t('lib.pick_file'), 'error'); return; }
+    if (!f.title.trim()) { toast(t('val.required'), 'error'); return; }
+    const v = validateFile(file, { maxMb: 50, mimes: MIME_CASE }); if (v) { toast(t(`err.${v}`, { mb: 50 }), 'error'); return; }
+    setBusy(true);
+    try {
+      const id = crypto.randomUUID();
+      const { data: u } = await supabase.auth.getUser();
+      const up = await uploadFile('library', id, file);
+      unwrap(await supabase.from('legal_resources').insert({
+        id, title: f.title.trim(), resource_type: f.resource_type, category_id: f.category_id ? Number(f.category_id) : null, language: 'ar',
+        status: 'published', created_by: u.user.id, file_path: up.path, file_name: up.file_name, mime_type: up.mime_type, size_bytes: up.size_bytes,
+      }));
+      toast(t('lib.uploaded_ok'), 'success'); onSaved();
+    } catch (e) { onError(e); } finally { setBusy(false); }
+  };
+  return (
+    <Modal title={t('lib.upload_file')} onClose={onClose} actions={<><Button onClick={onClose}>{t('common.cancel')}</Button><Button variant="primary" loading={busy} onClick={save}>{t('lib.upload_publish')}</Button></>}>
+      <div className="stack">
+        <Field label={t('lib.file')} hint={t('lib.file_hint')}><input type="file" onChange={pick} /></Field>
+        <Field label={t('lib.title')}><Input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></Field>
+        <div className="grid cols-2">
+          <Field label={t('lib.type')}><Select value={f.resource_type} onChange={(e) => setF({ ...f, resource_type: e.target.value })}>{RESOURCE_TYPES.map((x) => <option key={x} value={x}>{t(`rtype.${x}`)}</option>)}</Select></Field>
+          <Field label={t('lib.category')}><Select value={f.category_id} onChange={(e) => setF({ ...f, category_id: e.target.value })}><option value="">—</option>{cats.map((c) => <option key={c.id} value={c.id}>{lang === 'ar' ? c.name_ar : c.name_en}</option>)}</Select></Field>
+        </div>
+      </div>
+    </Modal>);
+}
+
 function ResourceForm({ initial, cats, onClose, onSaved }) {
   const { t, lang } = useI18n();
   const toast = useToast(); const onError = useErrorToast();
@@ -97,6 +137,7 @@ export default function LibraryAdmin() {
   const [q, setQ] = useState(''); const dq = useDebounced(q);
   const [status, setStatus] = useState('');
   const [form, setForm] = useState(null);
+  const [quick, setQuick] = useState(false);
   const cats = useAsync(async () => unwrap(await supabase.from('library_categories').select('*').order('sort_order')), []);
   const state = useAsync(async () => {
     let query = supabase.from('legal_resources').select('*').order('updated_at', { ascending: false }).limit(200);
@@ -110,7 +151,7 @@ export default function LibraryAdmin() {
   };
   return (
     <>
-      <PageHead title={t('nav.library')} actions={tab === 'items' && <Button variant="primary" onClick={() => setForm({})}>＋ {t('admin.new_resource')}</Button>} />
+      <PageHead title={t('nav.library')} actions={tab === 'items' && <><Button variant="primary" onClick={() => setQuick(true)}>⬆ {t('lib.upload_file')}</Button><Button onClick={() => setForm({})}>＋ {t('admin.new_resource')}</Button></>} />
       <Tabs value={tab} onChange={setTab} items={[{ value: 'items', label: t('admin.resources') }, { value: 'reports', label: t('admin.resource_reports') }]} />
       {tab === 'reports' ? <Reports /> : (
         <>
@@ -132,6 +173,7 @@ export default function LibraryAdmin() {
               </div>))}</div>}
           </AsyncView>
         </>)}
+      {quick && <QuickUpload cats={cats.data || []} onClose={() => setQuick(false)} onSaved={() => { setQuick(false); state.reload(); }} />}
       {form && <ResourceForm initial={form.id ? form : null} cats={cats.data || []} onClose={() => setForm(null)} onSaved={() => { setForm(null); state.reload(); }} />}
     </>);
 }
