@@ -90,8 +90,8 @@ export function AdminLawyerDetail() {
             <PageHead title={identity?.full_legal_name || lp.public_alias || t('admin.application')} subtitle={<StatusBadge status={st} prefix="vstatus" />}
               actions={<><Button size="sm" onClick={() => nav('/admin/lawyers')}>{t('common.back')}</Button>
                 {can('lawyers.review') && st === 'submitted' && <Button size="sm" onClick={() => review('start_review')}>{t('admin.start_review')}</Button>}
-                {can('lawyers.review') && ['submitted', 'under_review'].includes(st) && <><Button size="sm" variant="primary" onClick={() => setAction('approve')}>{t('admin.approve')}</Button>
-                  <Button size="sm" variant="danger" onClick={() => setAction('reject')}>{t('admin.reject')}</Button></>}
+                {can('lawyers.review') && ['draft', 'rejected', 'submitted', 'under_review'].includes(st) && <Button size="sm" variant="primary" onClick={() => setAction('approve')}>{t('admin.approve')}</Button>}
+                {can('lawyers.review') && ['submitted', 'under_review'].includes(st) && <Button size="sm" variant="danger" onClick={() => setAction('reject')}>{t('admin.reject')}</Button>}
                 {can('lawyers.manage') && st === 'approved' && <Button size="sm" variant="danger" onClick={() => setAction('suspend')}>{t('admin.suspend')}</Button>}
                 {can('lawyers.manage') && st === 'suspended' && <Button size="sm" variant="primary" onClick={() => setAction('reactivate')}>{t('admin.reactivate')}</Button>}</>} />
             {st === 'draft' && <Alert tone="info" className="small" >{t('admin.draft_not_submitted')}</Alert>}
@@ -132,7 +132,7 @@ export function AdminLawyerDetail() {
                     <Button size="sm" variant="danger" onClick={() => setAcct('deactivated')}>{t('admin.deactivate_account')}</Button></div></Card>)}
               </div>
             </div>
-            {action && <ConfirmDialog title={t(`admin.${action}`)} message={t(`admin.${action}_msg`)} danger={action !== 'approve' && action !== 'reactivate'} requireReason={['reject', 'suspend'].includes(action)} onCancel={() => setAction(null)} onConfirm={(r) => review(action, r)} />}
+            {action && <ConfirmDialog title={t(`admin.${action}`)} message={action === 'approve' && ['draft', 'rejected'].includes(st) ? t('admin.approve_direct_msg') : t(`admin.${action}_msg`)} danger={action !== 'approve' && action !== 'reactivate'} requireReason={['reject', 'suspend'].includes(action)} onCancel={() => setAction(null)} onConfirm={(r) => review(action, r)} />}
             {acct && <ConfirmDialog title={t('admin.account_controls')} message={t('common.cannot_undo')} danger={acct !== 'active'} requireReason={acct !== 'active'} onCancel={() => setAcct(null)} onConfirm={(r) => setAccount(acct, r)} />}
             {edit && (
               <Modal title={t('common.edit')} onClose={() => setEdit(null)} actions={<>
