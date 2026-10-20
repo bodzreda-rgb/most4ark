@@ -26,7 +26,7 @@ function AuthFrame({ title, children }) {
 
 export function Login() {
   const { t } = useI18n();
-  const { signIn, session, profile, loading, resetPassword } = useAuth();
+  const { signIn, session, profile, loading, resetPassword, isGuest, guestSignIn } = useAuth();
   const nav = useNavigate();
   const loc = useLocation();
   const [email, setEmail] = useState('');
@@ -36,8 +36,15 @@ export function Login() {
   const [info, setInfo] = useState('');
 
   if (loading) return <Spinner />;
-  if (session && profile) return <Navigate to={loc.state?.from || homeFor(profile)} replace />;
+  if (session && profile && !isGuest) return <Navigate to={loc.state?.from || homeFor(profile)} replace />;
 
+  const asGuest = async () => {
+    if (isGuest) { nav('/client/new', { replace: true }); return; }
+    setBusy(true); setError('');
+    const { error: err } = await guestSignIn();
+    setBusy(false);
+    if (err) setError(t(errorKey(err))); else nav('/client/new', { replace: true });
+  };
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true); setError(''); setInfo('');
@@ -62,6 +69,9 @@ export function Login() {
         <Button variant="primary" block loading={busy} type="submit">{t('auth.login')}</Button>
         <button type="button" className="btn btn-ghost btn-sm" onClick={forgot}>{t('auth.forgot')}</button>
         <p style={{ textAlign: 'center', margin: 0 }}>{t('auth.no_account')} <Link to="/register">{t('auth.register')}</Link></p>
+        <div className="guest-divider"><span>{t('auth.or')}</span></div>
+        <Button block type="button" onClick={asGuest} loading={busy}>👤 {t('auth.guest_continue')}</Button>
+        <p className="small muted" style={{ textAlign: 'center', margin: 0 }}>{t('auth.guest_hint')}</p>
       </form>
     </AuthFrame>
   );
@@ -69,7 +79,7 @@ export function Login() {
 
 export function Register() {
   const { t, lang } = useI18n();
-  const { signUp, session, profile, loading } = useAuth();
+  const { signUp, session, profile, loading, isGuest, upgradeGuest } = useAuth();
   const nav = useNavigate();
   const [type, setType] = useState('client');
   const [f, setF] = useState({ full_name: '', email: '', phone: '', password: '', agree: false });
@@ -79,7 +89,7 @@ export function Register() {
   const set = (k) => (e) => setF({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
 
   if (loading) return <Spinner />;
-  if (session && profile) return <Navigate to={homeFor(profile)} replace />;
+  if (session && profile && !isGuest) return <Navigate to={homeFor(profile)} replace />;
 
   const submit = async (e) => {
     e.preventDefault();
@@ -90,12 +100,13 @@ export function Register() {
     if (f.password.length < 8 || !/\d/.test(f.password) || !/[A-Za-z؀-ۿ]/.test(f.password)) return setError(t('val.password'));
     if (!f.agree) return setError(t('val.agree'));
     setBusy(true);
-    const { data, error: err } = await signUp(f.email.trim(), f.password, {
-      full_name: f.full_name.trim(), phone: f.phone.trim(), account_type: type, locale: lang,
-    });
+    const meta = { full_name: f.full_name.trim(), phone: f.phone.trim(), account_type: type, locale: lang };
+    // a guest keeps their consultations: the same user gets an email + password
+    const { data, error: err } = isGuest ? await upgradeGuest(f.email.trim(), f.password, meta) : await signUp(f.email.trim(), f.password, meta);
     setBusy(false);
     if (err) return setError(t(errorKey(err)));
-    if (data.session) nav('/', { replace: true });
+    if (isGuest) nav('/client', { replace: true });
+    else if (data.session) nav('/', { replace: true });
     else setDone(true);   // email confirmation required
   };
 

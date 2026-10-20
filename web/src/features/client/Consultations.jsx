@@ -66,7 +66,8 @@ export function NewConsultation() {
   const onError = useErrorToast();
   const { disclaimer, maxUploadMb } = usePublicSettings();
   const cats = useAsync(async () => unwrap(await supabase.from('consultation_categories').select('*').eq('is_active', true).order('sort_order')), []);
-  const [f, setF] = useState({ title: '', category_id: '', description: '', jurisdiction: 'مصر', location_text: '', opposing_party: '', preferred_response: 'in_app', consent_privacy: false, consent_disclaimer: false });
+  const { isGuest } = useAuth();
+  const [f, setF] = useState({ contact_name: '', contact_phone: '', contact_email: '', title: '', category_id: '', description: '', jurisdiction: 'مصر', location_text: '', opposing_party: '', preferred_response: 'in_app', consent_privacy: false, consent_disclaimer: false });
   const [files, setFiles] = useState([]);
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
@@ -84,6 +85,11 @@ export function NewConsultation() {
   const submit = async (e) => {
     e.preventDefault();
     const er = {};
+    if (isGuest) {
+      if (f.contact_name.trim().length < 3) er.contact_name = t('val.name');
+      if (!/^[+\d][\d\s-]{7,16}$/.test(f.contact_phone.trim())) er.contact_phone = t('val.phone');
+      if (!/^\S+@\S+\.\S+$/.test(f.contact_email.trim())) er.contact_email = t('val.email');
+    }
     if (f.title.trim().length < 3) er.title = t('val.title');
     if (!f.category_id) er.category_id = t('val.required');
     if (f.description.trim().length < 10) er.description = t('val.description');
@@ -99,6 +105,7 @@ export function NewConsultation() {
         jurisdiction: f.jurisdiction.trim() || 'مصر', location_text: f.location_text.trim() || null,
         opposing_party: f.opposing_party.trim() || null, preferred_response: f.preferred_response,
         consent_privacy: true, consent_disclaimer: true,
+        ...(isGuest ? { contact_name: f.contact_name.trim(), contact_phone: f.contact_phone.trim(), contact_email: f.contact_email.trim() } : {}),
       }));
       for (const file of files) {
         const up = await uploadFile('consultation-attachments', row.id, file);
@@ -116,6 +123,16 @@ export function NewConsultation() {
       <PageHead title={t('nav.new_consultation')} subtitle={t('cons.new_subtitle')} />
       <Disclaimer text={disclaimer('consultation')} />
       <form onSubmit={submit} noValidate className="card stack" style={{ marginTop: 16, maxWidth: 780 }}>
+        {isGuest && (
+          <fieldset className="guest-form">
+            <legend>{t('guest.contact_title')}</legend>
+            <p className="small muted">{t('guest.contact_note')}</p>
+            <div className="grid cols-3">
+              <Field label={t('auth.full_name')} error={errors.contact_name}><Input value={f.contact_name} onChange={set('contact_name')} autoComplete="name" maxLength={200} /></Field>
+              <Field label={t('auth.phone')} error={errors.contact_phone}><Input className="input ltr" type="tel" value={f.contact_phone} onChange={set('contact_phone')} autoComplete="tel" placeholder="+20 100 000 0000" /></Field>
+              <Field label={t('auth.email')} error={errors.contact_email}><Input className="input ltr" type="email" value={f.contact_email} onChange={set('contact_email')} autoComplete="email" /></Field>
+            </div>
+          </fieldset>)}
         <Field label={t('cons.title')} error={errors.title}><Input value={f.title} onChange={set('title')} maxLength={200} /></Field>
         <Field label={t('cons.category')} error={errors.category_id}>
           <Select value={f.category_id} onChange={set('category_id')}>

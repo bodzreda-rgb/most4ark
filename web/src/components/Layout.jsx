@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { useI18n } from '../lib/i18n.jsx';
 import { supabase } from '../lib/supabase.js';
@@ -35,7 +35,7 @@ function useUnread(userId) {
 
 export function AppShell({ nav, base }) {
   const { t, lang, setLang } = useI18n();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, isGuest } = useAuth();
   const navigate = useNavigate();
   const unread = useUnread(user?.id);
   const [more, setMore] = useState(false);
@@ -67,6 +67,11 @@ export function AppShell({ nav, base }) {
           </button>
           <Button variant="secondary" size="sm" onClick={async () => { await signOut(); navigate('/login'); }}>{t('auth.logout')}</Button>
         </header>
+        {isGuest && (
+          <div className="guest-banner" role="note">
+            <span>👤 {t('guest.banner')}</span>
+            <Link className="btn btn-primary btn-sm" to="/register">{t('guest.create_account')}</Link>
+          </div>)}
         <main className="content"><Outlet /></main>
       </div>
       <nav className="bottomnav" aria-label={t('nav.main')}>

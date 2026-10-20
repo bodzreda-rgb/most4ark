@@ -116,3 +116,11 @@
   .photo-tile { height: 130px; }
   .photo-tiles { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ---------- guest mode ---------- */
+.guest-divider { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: var(--fs-sm); }
+.guest-divider::before, .guest-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.guest-banner { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; padding: 8px var(--s5);
+  background: var(--accent-soft); border-bottom: 1px solid var(--border); font-size: var(--fs-sm); color: var(--ink-2); }
+.guest-form { border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s4); margin: 0; background: var(--accent-soft); }
+.guest-form legend { padding: 0 8px; font-family: var(--font-head); font-weight: 700; color: var(--ink); }

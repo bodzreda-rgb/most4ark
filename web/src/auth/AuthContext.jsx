@@ -71,6 +71,14 @@ export function AuthProvider({ children }) {
     tz: profile?.timezone || 'Africa/Cairo',
     refresh: () => loadAccount(session?.user?.id),
     signIn: (email, password) => supabase.auth.signInWithPassword({ email, password }),
+    isGuest: !!session?.user?.is_anonymous,
+    guestSignIn: () => supabase.auth.signInAnonymously({ options: { data: { locale: document.documentElement.lang === 'en' ? 'en' : 'ar' } } }),
+    // a guest turns into a real account (same user, keeps their consultations)
+    upgradeGuest: async (email, password, meta) => {
+      const r = await supabase.auth.updateUser({ email, password, data: meta });
+      if (!r.error) await supabase.from('profiles').update({ full_name: meta.full_name, phone: meta.phone || null }).eq('id', session.user.id);
+      return r;
+    },
     signUp: (email, password, meta) => supabase.auth.signUp({ email, password, options: { data: meta } }),
     resetPassword: (email) => supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/login' }),
     signOut: async () => { await supabase.auth.signOut(); },
