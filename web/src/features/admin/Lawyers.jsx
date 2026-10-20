@@ -12,13 +12,23 @@ const STATUSES = ['draft', 'submitted', 'under_review', 'approved', 'rejected', 
 
 export function AdminLawyers() {
   const { t, lang } = useI18n();
-  const { tz } = useAuth();
+  const { tz, can } = useAuth();
+  const toast = useToast(); const onError = useErrorToast();
+  const [act, setAct] = useState(null);
   const nav = useNavigate();
   const [sp, setSp] = useSearchParams();
   const status = sp.get('status') || '';
   const [q, setQ] = useState('');
   const dq = useDebounced(q);
   const state = useAsync(async () => unwrap(await supabase.rpc('admin_list_lawyers', { p_status: status || null, p_search: dq || null })), [status, dq]);
+  // approve (or re-activate) the lawyer AND make sure the login is active, in one click
+  const activate = async () => {
+    try {
+      unwrap(await supabase.rpc('admin_review_lawyer', { p_lawyer: act.user_id, p_action: act.verification_status === 'suspended' ? 'reactivate' : 'approve', p_reason: null }));
+      await supabase.rpc('admin_set_account_status', { p_user: act.user_id, p_status: 'active', p_reason: null });
+      setAct(null); toast(t('admin.lawyer_activated'), 'success'); state.reload();
+    } catch (e) { onError(e); }
+  };
   return (
     <>
       <PageHead title={t('nav.lawyers')} />
@@ -30,13 +40,16 @@ export function AdminLawyers() {
       <AsyncView state={state} empty={<Empty glyph="🪪" title={t('admin.no_lawyers')} />}>
         {(rows) => (
           <div className="table-wrap"><table className="table">
-            <thead><tr><th>{t('admin.legal_name')}</th><th>{t('dir.alias')}</th><th>{t('lawyer.city')}</th><th>{t('lawyer.years')}</th><th>{t('common.status')}</th><th>{t('admin.submitted_at')}</th></tr></thead>
+            <thead><tr><th>{t('admin.legal_name')}</th><th>{t('dir.alias')}</th><th>{t('lawyer.city')}</th><th>{t('lawyer.years')}</th><th>{t('common.status')}</th><th>{t('admin.submitted_at')}</th><th /></tr></thead>
             <tbody>{rows.map((r) => (
               <tr key={r.user_id} className="clickable" onClick={() => nav(`/admin/lawyers/${r.user_id}`)}>
                 <td>{r.full_legal_name || <span className="muted">{t('admin.identity_hidden')}</span>}</td><td className="ltr">{r.public_alias || '—'}</td>
                 <td>{r.city || '—'}</td><td>{r.years_experience ?? '—'}</td><td><StatusBadge status={r.verification_status} prefix="vstatus" /></td>
-                <td className="nowrap">{r.submitted_at ? formatDateTime(r.submitted_at, tz, lang) : '—'}</td></tr>))}</tbody></table></div>)}
+                <td className="nowrap">{r.submitted_at ? formatDateTime(r.submitted_at, tz, lang) : '—'}</td>
+                <td className="nowrap">{can('lawyers.review') && r.verification_status !== 'approved' && (
+                  <Button size="sm" variant="primary" onClick={(e) => { e.stopPropagation(); setAct(r); }}>✓ {t('admin.activate_lawyer')}</Button>)}</td></tr>))}</tbody></table></div>)}
       </AsyncView>
+      {act && <ConfirmDialog title={t('admin.activate_lawyer')} message={['draft', 'rejected'].includes(act.verification_status) ? t('admin.approve_direct_msg') : t('admin.approve_msg')} onCancel={() => setAct(null)} onConfirm={activate} />}
     </>);
 }
 
@@ -75,7 +88,11 @@ export function AdminLawyerDetail() {
     } catch (e) { onError(e); }
   };
   const setAccount = async (status, reason) => {
-    try { unwrap(await supabase.rpc('admin_set_account_status', { p_user: id, p_status: status, p_reason: reason || null })); setAcct(null); toast(t('common.saved'), 'success'); state.reload(); }
+    try {
+      // activating a lawyer must also approve the application, otherwise they still cannot use the platform
+      const vs = state.data?.lp?.verification_status;
+      if (status === 'active' && vs && vs !== 'approved') unwrap(await supabase.rpc('admin_review_lawyer', { p_lawyer: id, p_action: vs === 'suspended' ? 'reactivate' : 'approve', p_reason: null }));
+      unwrap(await supabase.rpc('admin_set_account_status', { p_user: id, p_status: status, p_reason: reason || null })); setAcct(null); toast(t('common.saved'), 'success'); state.reload(); }
     catch (e) { onError(e); }
   };
 
@@ -90,7 +107,7 @@ export function AdminLawyerDetail() {
             <PageHead title={identity?.full_legal_name || lp.public_alias || t('admin.application')} subtitle={<StatusBadge status={st} prefix="vstatus" />}
               actions={<><Button size="sm" onClick={() => nav('/admin/lawyers')}>{t('common.back')}</Button>
                 {can('lawyers.review') && st === 'submitted' && <Button size="sm" onClick={() => review('start_review')}>{t('admin.start_review')}</Button>}
-                {can('lawyers.review') && ['draft', 'rejected', 'submitted', 'under_review'].includes(st) && <Button size="sm" variant="primary" onClick={() => setAction('approve')}>{t('admin.approve')}</Button>}
+                {can('lawyers.review') && ['draft', 'rejected', 'submitted', 'under_review'].includes(st) && <Button size="sm" variant="primary" onClick={() => setAction('approve')}>✓ {t('admin.activate_lawyer')}</Button>}
                 {can('lawyers.review') && ['submitted', 'under_review'].includes(st) && <Button size="sm" variant="danger" onClick={() => setAction('reject')}>{t('admin.reject')}</Button>}
                 {can('lawyers.manage') && st === 'approved' && <Button size="sm" variant="danger" onClick={() => setAction('suspend')}>{t('admin.suspend')}</Button>}
                 {can('lawyers.manage') && st === 'suspended' && <Button size="sm" variant="primary" onClick={() => setAction('reactivate')}>{t('admin.reactivate')}</Button>}</>} />

@@ -36,6 +36,8 @@ export const en = {
   "admin.application": "Application",
   "admin.draft_not_submitted": "The lawyer has not submitted the application yet. You can approve them directly with Approve, or wait until they complete their details and bar card.",
   "admin.approve_direct_msg": "This lawyer will be approved directly without a submitted verification request and can sign in and use the platform immediately. The action is recorded in the audit log.",
+  "admin.activate_lawyer": "Activate lawyer",
+  "admin.lawyer_activated": "The lawyer is activated and can now sign in and use the platform.",
   "admin.approve": "Approve",
   "admin.approve_msg": "The lawyer will be approved and given a public alias.",
   "admin.approved_lawyers": "Approved lawyers",

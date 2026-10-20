@@ -3,39 +3,9 @@
 -- * An admin (permission lawyers.review) can approve a lawyer straight from the
 --   list, even if the lawyer has not submitted the application yet.
 -- * Approving a lawyer also activates the account if it was still 'pending'.
--- * Lawyer sign-ups start 'active' (they only reach the application page until
---   approved); only client sign-ups wait in 'pending'.
+-- * (Sign-up handling lives in 0011_guest_clients.sql, which supersedes this file's old version.)
 -- Safe to run more than once.
 -- =============================================================================
-
-create or replace function public.handle_new_user()
-returns trigger language plpgsql security definer set search_path = public as $$
-declare
-  v_type text := coalesce(new.raw_user_meta_data->>'account_type', 'client');
-  v_name text;
-  v_locale text := coalesce(new.raw_user_meta_data->>'locale', 'ar');
-  v_status text;
-begin
-  if v_type not in ('client','lawyer') then v_type := 'client'; end if;
-  if v_locale not in ('ar','en') then v_locale := 'ar'; end if;
-  -- lawyers are gated by the verification workflow; clients by account acceptance
-  v_status := case when v_type = 'client'
-                    and public.setting_text('require_account_approval', 'true') = 'true'
-                   then 'pending' else 'active' end;
-  v_name := coalesce(nullif(trim(new.raw_user_meta_data->>'full_name'), ''),
-                     split_part(coalesce(new.email, ''), '@', 1));
-  insert into public.profiles (id, account_type, full_name, email, phone, locale, status)
-  values (new.id, v_type, v_name, new.email, nullif(new.raw_user_meta_data->>'phone', ''), v_locale, v_status);
-  if v_type = 'lawyer' then
-    insert into public.lawyer_profiles (user_id) values (new.id);
-    insert into public.lawyer_identities (user_id, full_legal_name) values (new.id, v_name);
-    perform public.notify_admins('lawyers.review', 'application_submitted', 'lawyer', new.id::text);
-  end if;
-  if v_status = 'pending' then
-    perform public.notify_admins('users.manage', 'account_pending', 'user', new.id::text);
-  end if;
-  return new;
-end $$;
 
 create or replace function public.admin_review_lawyer(
   p_lawyer uuid, p_action text, p_reason text default null)
