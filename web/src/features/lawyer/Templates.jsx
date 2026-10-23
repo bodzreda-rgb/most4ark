@@ -8,6 +8,8 @@ import { usePublicSettings } from '../../lib/settings.js';
 import { Alert, AsyncView, Button, Card, Disclaimer, Empty, Field, Input, Modal, PageHead, Select, Textarea, useErrorToast, useToast } from '../../components/ui.jsx';
 
 export const TEMPLATE_CATEGORIES = ['power_of_attorney', 'legal_notice', 'contract', 'memorandum', 'pleading', 'letter', 'engagement_agreement', 'payment_acknowledgement', 'other'];
+/** Built-in categories are translated; admin-typed ones are shown as written. */
+export const tplCatLabel = (t, c) => (TEMPLATE_CATEGORIES.includes(c) ? t(`tplcat.${c}`) : c);
 
 function FillModal({ tpl, onClose }) {
   const { t, lang } = useI18n();
@@ -45,27 +47,25 @@ export default function Templates() {
   const { disclaimer } = usePublicSettings();
   const [cat, setCat] = useState('');
   const [fill, setFill] = useState(null);
-  const state = useAsync(async () => {
-    let q = supabase.from('document_templates').select('*').eq('status', 'published').order('title');
-    if (cat) q = q.eq('category', cat);
-    return unwrap(await q);
-  }, [cat]);
+  const all = useAsync(async () => unwrap(await supabase.from('document_templates').select('*').eq('status', 'published').order('title')), []);
+  const cats = [...new Set((all.data || []).map((r) => r.category))];
+  const state = { ...all, data: all.data && (cat ? all.data.filter((r) => r.category === cat) : all.data) };
   return (
     <>
       <PageHead title={t('nav.templates')} subtitle={t('tpl.subtitle')} />
       <Disclaimer text={disclaimer('templates')} />
       <div className="row" style={{ margin: '16px 0' }}>
         <Select style={{ maxWidth: 260 }} value={cat} onChange={(e) => setCat(e.target.value)} aria-label={t('tpl.category')}><option value="">{t('common.all')}</option>
-          {TEMPLATE_CATEGORIES.map((c) => <option key={c} value={c}>{t(`tplcat.${c}`)}</option>)}</Select>
+          {cats.map((c) => <option key={c} value={c}>{tplCatLabel(t, c)}</option>)}</Select>
       </div>
       <AsyncView state={state} empty={<Empty glyph="📄" title={t('tpl.empty')}>{t('tpl.empty_hint')}</Empty>}>
         {(rows) => (
           <div className="grid cols-3">{rows.map((r) => (
             <Card key={r.id} title={r.title}>
-              <p className="small muted">{t(`tplcat.${r.category}`)}</p><p className="small">{r.description}</p>
+              <p className="small muted">{tplCatLabel(t, r.category)}</p><p className="small">{r.description}</p>
               <p className="small"><span className={`badge ${r.reviewed_for_purpose ? 'success' : 'warn'}`}>{r.reviewed_for_purpose ? t('tpl.reviewed') : t('tpl.reference_only')}</span></p>
               <div className="row">{r.body && <Button size="sm" variant="primary" onClick={() => setFill(r)}>{t('tpl.fill')}</Button>}
-                {r.file_path && <Button size="sm" onClick={() => openSigned('templates', r.file_path, { download: true }).catch(onError)}>⬇ {t('common.download')}</Button>}</div>
+                {r.file_path && <Button size="sm" onClick={() => openSigned('templates', r.file_path, { download: r.file_name || true }).catch(onError)}>⬇ {t('common.download')}</Button>}</div>
             </Card>))}</div>)}
       </AsyncView>
       {fill && <FillModal tpl={fill} onClose={() => setFill(null)} />}

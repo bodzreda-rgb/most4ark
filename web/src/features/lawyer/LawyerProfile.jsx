@@ -3,9 +3,33 @@ import { supabase } from '../../lib/supabase.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useI18n } from '../../lib/i18n.jsx';
 import { useAsync, unwrap } from '../../lib/hooks.js';
-import { Alert, AsyncView, Card, PageHead, useErrorToast, useToast } from '../../components/ui.jsx';
+import { Alert, AsyncView, Button, Card, Field, Input, PageHead, useErrorToast, useToast } from '../../components/ui.jsx';
 import { LawyerForm } from './Application.jsx';
 import Account from '../shared/Account.jsx';
+import PhotoEditor from '../shared/PhotoEditor.jsx';
+
+/** What clients see in the directory: photo + one-line brief (the full bio is in the form below). */
+function DirectoryCard() {
+  const { t } = useI18n();
+  const { user, lawyer, refresh } = useAuth();
+  const toast = useToast(); const onError = useErrorToast();
+  const [headline, setHeadline] = useState(lawyer?.headline || '');
+  const [busy, setBusy] = useState(false);
+  const save = async () => {
+    setBusy(true);
+    try { unwrap(await supabase.from('lawyer_profiles').update({ headline: headline.trim() || null }).eq('user_id', user.id)); await refresh(); toast(t('common.saved'), 'success'); }
+    catch (e) { onError(e); } finally { setBusy(false); }
+  };
+  return (
+    <Card title={t('profile.directory_card')}>
+      <div className="stack">
+        <PhotoEditor />
+        <Field label={t('profile.headline')} hint={t('profile.headline_hint')}>
+          <Input value={headline} onChange={(e) => setHeadline(e.target.value)} maxLength={160} placeholder={t('profile.headline_ph')} /></Field>
+        <div><Button variant="primary" loading={busy} disabled={(lawyer?.headline || '') === headline} onClick={save}>{t('common.save')}</Button></div>
+      </div>
+    </Card>);
+}
 
 export default function LawyerProfile() {
   const { t } = useI18n();
@@ -24,6 +48,7 @@ export default function LawyerProfile() {
     <>
       <PageHead title={t('lawyer.public_profile')} subtitle={t('lawyer.public_profile_hint')} />
       <Alert tone="info">{t('lawyer.alias_is')}: <strong className="ltr">{lawyer?.public_alias}</strong> — {t('lawyer.alias_note')}</Alert>
+      <div style={{ marginTop: 16 }}><DirectoryCard /></div>
       <AsyncView state={data}>{(d) => {
         const sel = selected ?? d.mine;
         const save = async (row) => {
@@ -43,7 +68,7 @@ export default function LawyerProfile() {
               identityLocked onSave={save} saving={saving} /></Card>
           </div>);
       }}</AsyncView>
-      <div style={{ marginTop: 24 }}><Account /></div>
+      <div style={{ marginTop: 24 }}><Account photo={false} /></div>
     </>
   );
 }

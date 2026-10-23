@@ -72,6 +72,7 @@ export function Login() {
         <div className="guest-divider"><span>{t('auth.or')}</span></div>
         <Button block type="button" onClick={asGuest} loading={busy}>👤 {t('auth.guest_continue')}</Button>
         <p className="small muted" style={{ textAlign: 'center', margin: 0 }}>{t('auth.guest_hint')}</p>
+        <p className="small" style={{ textAlign: 'center', margin: 0 }}><Link to="/about">🏛️ {t('about.link')}</Link></p>
       </form>
     </AuthFrame>
   );

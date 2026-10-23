@@ -41,9 +41,33 @@ export async function uploadFile(bucket, folder, file) {
   return { path, file_name: file.name, mime_type: file.type, size_bytes: file.size };
 }
 
-/** Private buckets: always use a short-lived signed URL (never a public URL). */
+/** Private buckets: always use a short-lived signed URL (never a public URL).
+ *  `download` may be true or the file name the browser should save it as. */
 export async function openSigned(bucket, path, { download = false, seconds = 60 } = {}) {
-  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, seconds, download ? { download: true } : undefined);
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, seconds, download ? { download } : undefined);
   if (error) throw error;
   window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
+}
+
+/** Best effort: a leftover object is harmless, so a failed delete never blocks the caller. */
+export async function removeFiles(bucket, paths) {
+  const list = paths.filter(Boolean);
+  if (list.length) await supabase.storage.from(bucket).remove(list);
+}
+
+export const MIME_AVATAR = ['image/jpeg', 'image/png', 'image/webp'];
+const AVATAR_EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+
+/** Profile photos live in the PUBLIC `avatars` bucket under `{folder}/`; returns the public URL. */
+export async function uploadPublicImage(folder, file) {
+  const path = `${folder}/${crypto.randomUUID()}.${AVATAR_EXT[file.type] || 'jpg'}`;
+  const { error } = await supabase.storage.from('avatars').upload(path, file, { contentType: file.type, upsert: false, cacheControl: '31536000' });
+  if (error) throw error;
+  return supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+}
+
+/** Path inside the avatars bucket for a public URL we produced (null for anything else). */
+export function avatarPathOf(url) {
+  const m = /\/storage\/v1\/object\/public\/avatars\/(.+)$/.exec(url || '');
+  return m ? decodeURIComponent(m[1]) : null;
 }

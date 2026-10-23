@@ -4,10 +4,11 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import { useI18n } from '../../lib/i18n.jsx';
 import { unwrap } from '../../lib/hooks.js';
 import { Button, Card, Field, Input, PageHead, Select, useErrorToast, useToast } from '../../components/ui.jsx';
+import PhotoEditor from './PhotoEditor.jsx';
 
 const ZONES = ['Africa/Cairo', 'Asia/Riyadh', 'Asia/Dubai', 'Europe/London', 'UTC'];
 
-export default function Account() {
+export default function Account({ photo = true }) {
   const { t, lang, setLang } = useI18n();
   const { profile, user, refresh } = useAuth();
   const toast = useToast();
@@ -39,6 +40,7 @@ export default function Account() {
       <PageHead title={t('nav.profile')} />
       <div className="grid cols-2">
         <Card title={t('account.details')}>
+          {photo && <div style={{ marginBottom: 16 }}><PhotoEditor /></div>}
           <form className="stack" onSubmit={save}>
             <Field label={t('auth.full_name')}><Input value={f.full_name} onChange={set('full_name')} /></Field>
             <Field label={t('auth.email')}><Input className="input ltr" value={profile?.email || ''} disabled /></Field>

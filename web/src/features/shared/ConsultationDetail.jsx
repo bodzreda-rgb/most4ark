@@ -12,6 +12,8 @@ import {
   Select, StatusBadge, Textarea, useErrorToast, useToast,
 } from '../../components/ui.jsx';
 
+import { Avatar } from '../../components/Layout.jsx';
+
 const BUCKET = 'consultation-attachments';
 
 function AssignPanel({ consultationId, onDone }) {
@@ -19,7 +21,13 @@ function AssignPanel({ consultationId, onDone }) {
   const toast = useToast();
   const onError = useErrorToast();
   const [override, setOverride] = useState(null);   // lawyer being assigned despite conflict
-  const state = useAsync(async () => unwrap(await supabase.rpc('eligible_lawyers_for_consultation', { p_consultation: consultationId })), [consultationId]);
+  const state = useAsync(async () => {
+    const rows = unwrap(await supabase.rpc('eligible_lawyers_for_consultation', { p_consultation: consultationId }));
+    if (!rows.length) return rows;
+    const names = unwrap(await supabase.rpc('admin_lawyer_names', { p_ids: rows.map((r) => r.lawyer_id) }));
+    const byId = Object.fromEntries(names.map((n) => [n.user_id, n]));
+    return rows.map((r) => ({ ...r, full_name: byId[r.lawyer_id]?.full_name, avatar_url: byId[r.lawyer_id]?.avatar_url }));
+  }, [consultationId]);
 
   const assign = async (lawyerId, ov = false, note = null) => {
     try {
@@ -35,11 +43,12 @@ function AssignPanel({ consultationId, onDone }) {
       <AsyncView state={state} empty={<p className="muted">{t('cons.no_eligible')}</p>}>
         {(rows) => (
           <div className="table-wrap"><table className="table">
-            <thead><tr><th>{t('dir.alias')}</th><th>{t('dir.experience')}</th><th>{t('cons.spec_match')}</th><th>{t('cons.load')}</th><th>{t('cons.conflicts')}</th><th /></tr></thead>
+            <thead><tr><th>{t('cons.lawyer')}</th><th>{t('dir.experience')}</th><th>{t('cons.spec_match')}</th><th>{t('cons.load')}</th><th>{t('cons.conflicts')}</th><th /></tr></thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.lawyer_id}>
-                  <td className="ltr">{r.public_alias}</td>
+                  <td><span className="row" style={{ flexWrap: 'nowrap' }}><Avatar name={r.full_name} src={r.avatar_url} size={30} />
+                    <span><strong>{r.full_name || r.public_alias}</strong><br /><span className="small muted ltr">{r.public_alias}</span></span></span></td>
                   <td>{r.years_experience ?? '—'}</td>
                   <td>{r.specialization_match ? '✓' : '—'}</td>
                   <td>{r.open_load}</td>
@@ -84,7 +93,9 @@ export default function ConsultationDetail({ role }) {
     if (!c.data) return { missing: true };
     let person = null;
     if (role === 'admin') person = ((await supabase.rpc('admin_consultation_people', { p_ids: [id] })).data || [])[0] || null;
-    return { c: c.data, msgs: unwrap(msgs), atts: unwrap(atts), hist: unwrap(hist), person };
+    // lawyers never see this (they are the assigned lawyer); clients and admins see who it is
+    const lawyer = role === 'lawyer' ? null : ((await supabase.rpc('consultation_lawyer', { p_consultation: id })).data || [])[0] || null;
+    return { c: c.data, msgs: unwrap(msgs), atts: unwrap(atts), hist: unwrap(hist), person, lawyer };
   }, [id]);
 
   const send = async () => {
@@ -121,7 +132,7 @@ export default function ConsultationDetail({ role }) {
     <AsyncView state={state}>
       {(d) => {
         if (d.missing) return <Alert tone="warn">{t('common.not_found')}</Alert>;
-        const { c, msgs, atts, hist, person } = d;
+        const { c, msgs, atts, hist, person, lawyer } = d;
         const closed = ['closed', 'rejected'].includes(c.status);
         const catName = c.category ? (lang === 'ar' ? c.category.name_ar : c.category.name_en) : '—';
         return (
@@ -131,6 +142,15 @@ export default function ConsultationDetail({ role }) {
             <Disclaimer text={disclaimer('consultation')} />
             <div className="grid cols-2" style={{ marginTop: 16, alignItems: 'start' }}>
               <div className="stack">
+                {lawyer && (
+                  <Card title={t('cons.your_lawyer')}>
+                    <div className="row" style={{ flexWrap: 'nowrap' }}>
+                      <Avatar name={lawyer.full_name} src={lawyer.avatar_url} size={56} />
+                      <span><strong>{lawyer.full_name}</strong>
+                        {lawyer.headline && <div className="small lawyer-headline">{lawyer.headline}</div>}
+                        <div className="small muted"><span className="badge success">✓ {t('dir.verified')}</span></div></span>
+                    </div>
+                  </Card>)}
                 <Card title={t('cons.details')}>
                   <KV items={[
                     person && [t('admin.client_name'), person.client_name],

@@ -3,8 +3,9 @@
 Arabic-first (RTL) legal-practice management and consultation platform. English is secondary.
 **Web app**: React 18 + Vite. **Backend**: Supabase (Postgres + RLS, Auth, private Storage, Edge Functions).
 
-Roles: **lawyer** (verification, directory, dashboard, calendar, cases, clients, finance, library, templates),
-**client** (consultations), **admin** (dashboard, approvals, assignments, library, templates, settings, reports, audit).
+Roles: **lawyer** (verification, public profile with photo, dashboard, calendar, cases, clients, finance, library, templates),
+**client** (AI assistant or a specialist lawyer, consultations, lawyer directory), **admin** (dashboard, approvals, assignments,
+library, templates, settings, reports, audit, About page). Everyone: About page (`/about`, also public).
 
 ## Layout
 ```
@@ -30,6 +31,13 @@ docs/                  architecture + authorization matrix
    (pg_cron + `net.http_post` with header `x-cron-secret`, or Supabase Scheduled Functions).
 8. Optional push: deploy `send-push`, set `FCM_PROJECT_ID`, `FCM_SERVICE_ACCOUNT_JSON`, `WEBHOOK_SECRET`, and add a Database Webhook on `notifications` INSERT.
 9. Optional: schedule `select purge_deleted_records();` daily (retention per `platform_settings`).
+10. Apply `0008…0012` in order (each is safe to re-run). `0012` adds profile photos (public `avatars` bucket),
+    the clients-only lawyer directory, free-text template categories, the About page content and AI usage limits.
+11. AI assistant (Google Gemini): create a free key at https://aistudio.google.com/apikey, then
+    `supabase secrets set GEMINI_API_KEY=<key> --project-ref <ref>` and `supabase functions deploy ai-assistant --project-ref <ref> --use-api`.
+    Optional secret `GEMINI_MODEL` (default `gemini-2.5-flash`, which has free Google Search grounding).
+    Per-user daily limit: `platform_settings.ai_daily_limit` (default 30); turn off with `ai_enabled = false`.
+    The function sends published library/template text that matches the question to Gemini as context.
 
 ## Tests
 - `web`: `npm test` (Vitest: dates incl. Cairo DST, finance model, CSV injection guard, templates, i18n key parity and coverage).

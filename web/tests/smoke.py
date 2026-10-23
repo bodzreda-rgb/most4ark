@@ -48,9 +48,9 @@ def session_json():
                        'user': {'id': UID, 'aud': 'authenticated', 'email': 't@example.com', 'app_metadata': {}, 'user_metadata': {}, 'created_at': '2026-01-01T00:00:00Z'}})
 
 ROUTES = {
-  'admin': ['/admin','/admin/lawyers','/admin/consultations','/admin/users','/admin/library','/admin/templates','/admin/settings','/admin/reports','/admin/audit','/admin/profile','/admin/notifications'],
-  'client': ['/client','/client/new','/client/notifications','/client/profile'],
-  'lawyer': ['/lawyer','/lawyer/calendar','/lawyer/cases','/lawyer/clients','/lawyer/finance','/lawyer/consultations','/lawyer/library','/lawyer/templates','/lawyer/directory','/lawyer/notifications','/lawyer/profile'],
+  'admin': ['/admin','/admin/lawyers','/admin/consultations','/admin/users','/admin/library','/admin/templates','/admin/settings','/admin/reports','/admin/audit','/admin/directory','/admin/about','/admin/profile','/admin/notifications'],
+  'client': ['/client','/client/new','/client/ask','/client/assistant','/client/directory','/client/about','/client/notifications','/client/profile'],
+  'lawyer': ['/lawyer','/lawyer/calendar','/lawyer/cases','/lawyer/clients','/lawyer/finance','/lawyer/consultations','/lawyer/library','/lawyer/templates','/lawyer/about','/lawyer/notifications','/lawyer/profile'],
 }
 
 def main():

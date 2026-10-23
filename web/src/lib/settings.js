@@ -18,6 +18,8 @@ export function usePublicSettings() {
   const s = state.data || {};
   return {
     settings: s,
+    loading: state.loading,
+    reload: () => { invalidateSettings(); state.reload(); },
     disclaimer: (name) => s[`disclaimer_${name}_${lang}`] || s[`disclaimer_${name}_ar`] || '',
     maxUploadMb: Number(s.max_upload_mb || 10),
     rangeDays: Number(s.calendar_default_range_days || 30),

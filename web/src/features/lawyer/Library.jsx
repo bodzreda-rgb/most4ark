@@ -116,7 +116,7 @@ export function ResourceDetail() {
             <PageHead title={r.title} subtitle={t(`rtype.${r.resource_type}`)} actions={<>
               <Button size="sm" onClick={() => nav(-1)}>{t('common.back')}</Button>
               <Button size="sm" onClick={() => toggle(d.bookmarked)}>{d.bookmarked ? '★ ' + t('lib.bookmarked') : '☆ ' + t('lib.bookmark')}</Button>
-              {r.file_path && <Button size="sm" variant="primary" onClick={() => openSigned('library', r.file_path, { download: true }).catch(onError)}>⬇ {t('common.download')}</Button>}
+              {r.file_path && <Button size="sm" variant="primary" onClick={() => openSigned('library', r.file_path, { download: r.file_name || true }).catch(onError)}>⬇ {t('common.download')}</Button>}
               <Button size="sm" variant="ghost" onClick={() => setReport(true)}>🚩 {t('lib.report')}</Button></>} />
             <div className="stack">
               <VerificationNotice r={r} />

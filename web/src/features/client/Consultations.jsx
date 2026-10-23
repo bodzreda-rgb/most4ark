@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { useI18n } from '../../lib/i18n.jsx';
@@ -29,10 +29,11 @@ export function MyConsultations() {
 
   return (
     <>
-      <PageHead title={t('nav.my_consultations')} actions={<Link className="btn btn-primary" to="/client/new">➕ {t('nav.new_consultation')}</Link>} />
+      <PageHead title={t('nav.my_consultations')} actions={<Link className="btn btn-primary" to="/client/ask">❓ {t('nav.ask')}</Link>} />
       <PhotoTiles items={[
-        { to: '/client/new', img: 'columns', label: t('nav.new_consultation') },
-        { to: '/client/profile', img: 'suit', label: t('nav.profile') },
+        { to: '/client/assistant', img: 'library', label: `🤖 ${t('ask.ai_title')}` },
+        { to: '/client/new', img: 'columns', label: `⚖️ ${t('ask.lawyer_title')}` },
+        { to: '/client/directory', img: 'suit', label: `🧭 ${t('nav.directory')}` },
       ]} />
       <div className="row" style={{ marginBottom: 16 }}>
         <SearchBox value={q} onChange={setQ} placeholder={t('common.search')} />
@@ -67,7 +68,8 @@ export function NewConsultation() {
   const { disclaimer, maxUploadMb } = usePublicSettings();
   const cats = useAsync(async () => unwrap(await supabase.from('consultation_categories').select('*').eq('is_active', true).order('sort_order')), []);
   const { isGuest } = useAuth();
-  const [f, setF] = useState({ contact_name: '', contact_phone: '', contact_email: '', title: '', category_id: '', description: '', jurisdiction: 'مصر', location_text: '', opposing_party: '', preferred_response: 'in_app', consent_privacy: false, consent_disclaimer: false });
+  const prefill = useLocation().state?.prefill;   // from the AI assistant ("send to a lawyer")
+  const [f, setF] = useState({ contact_name: '', contact_phone: '', contact_email: '', title: prefill?.title || '', category_id: '', description: prefill?.description || '', jurisdiction: 'مصر', location_text: '', opposing_party: '', preferred_response: 'in_app', consent_privacy: false, consent_disclaimer: false });
   const [files, setFiles] = useState([]);
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
@@ -122,6 +124,7 @@ export function NewConsultation() {
     <>
       <PageHead title={t('nav.new_consultation')} subtitle={t('cons.new_subtitle')} />
       <Disclaimer text={disclaimer('consultation')} />
+      {prefill && <Alert tone="info" className="small">🤖 {t('cons.from_ai')}</Alert>}
       <form onSubmit={submit} noValidate className="card stack" style={{ marginTop: 16, maxWidth: 780 }}>
         {isGuest && (
           <fieldset className="guest-form">

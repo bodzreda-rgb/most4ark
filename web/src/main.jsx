@@ -5,6 +5,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
 import './styles/layout.css';
+import './styles/features.css';
 import { I18nProvider } from './lib/i18n.jsx';
 import { AuthProvider } from './auth/AuthContext.jsx';
 import { ToastProvider } from './components/ui.jsx';

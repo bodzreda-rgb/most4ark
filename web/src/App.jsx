@@ -18,7 +18,10 @@ import CaseDetail from './features/lawyer/CaseDetail.jsx';
 import Clients, { ClientDetail } from './features/lawyer/Clients.jsx';
 import Finance, { TransactionDetail } from './features/lawyer/Finance.jsx';
 import LawyerConsultations from './features/lawyer/LawyerConsultations.jsx';
-import Directory from './features/lawyer/Directory.jsx';
+import Directory from './features/client/Directory.jsx';
+import Ask from './features/client/Ask.jsx';
+import AiChat from './features/shared/AiChat.jsx';
+import About from './features/shared/About.jsx';
 import Library, { ResourceDetail } from './features/lawyer/Library.jsx';
 import Templates from './features/lawyer/Templates.jsx';
 import Overview from './features/admin/Overview.jsx';
@@ -27,6 +30,7 @@ import AdminUsers from './features/admin/Users.jsx';
 import AdminConsultations from './features/admin/Consultations.jsx';
 import LibraryAdmin from './features/admin/LibraryAdmin.jsx';
 import TemplatesAdmin from './features/admin/TemplatesAdmin.jsx';
+import DirectoryAdmin from './features/admin/DirectoryAdmin.jsx';
 import Settings from './features/admin/Settings.jsx';
 import Reports from './features/admin/Reports.jsx';
 import AuditLog from './features/admin/Audit.jsx';
@@ -49,10 +53,15 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/suspended" element={<Suspended />} />
+      <Route path="/about" element={<About standalone />} />
 
       <Route path="/client" element={<RequireRole role="client"><ShellFor role="client" /></RequireRole>}>
         <Route index element={<MyConsultations />} />
         <Route path="new" element={<NewConsultation />} />
+        <Route path="ask" element={<Ask />} />
+        <Route path="assistant" element={<AiChat />} />
+        <Route path="directory" element={<Directory />} />
+        <Route path="about" element={<About />} />
         <Route path="consultations/:id" element={<ConsultationDetail role="client" />} />
         <Route path="notifications" element={<Notifications base="/client" />} />
         <Route path="profile" element={<Account />} />
@@ -73,7 +82,7 @@ export default function App() {
         <Route path="library" element={<Library />} />
         <Route path="library/:id" element={<ResourceDetail />} />
         <Route path="templates" element={<Templates />} />
-        <Route path="directory" element={<Directory />} />
+        <Route path="about" element={<About />} />
         <Route path="notifications" element={<Notifications base="/lawyer" />} />
         <Route path="profile" element={<LawyerProfile />} />
       </Route>
@@ -90,6 +99,8 @@ export default function App() {
         <Route path="settings" element={<P perm="categories.manage"><Settings /></P>} />
         <Route path="reports" element={<P perm="reports.read"><Reports /></P>} />
         <Route path="audit" element={<P perm="audit.read"><AuditLog /></P>} />
+        <Route path="directory" element={<P perm="lawyers.review"><DirectoryAdmin /></P>} />
+        <Route path="about" element={<About />} />
         <Route path="notifications" element={<Notifications base="/admin" />} />
         <Route path="profile" element={<Account />} />
       </Route>

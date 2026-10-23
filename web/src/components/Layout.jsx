@@ -7,8 +7,11 @@ import { Button } from './ui.jsx';
 
 export const Logo = () => <img src="/logo-192.png" alt="" aria-hidden="true" />;
 
-/** Round avatar: the app logo, with the user's name as its accessible label. */
-export const Avatar = ({ name }) => <img className="avatar" src="/logo-192.png" alt="" title={name || undefined} aria-hidden="true" />;
+/** Round avatar: the user's photo when they uploaded one, otherwise the app logo. */
+export const Avatar = ({ name, src, size }) => (
+  <img className="avatar" src={src || '/logo-192.png'} alt="" title={name || undefined} aria-hidden="true"
+    style={size ? { width: size, height: size } : undefined} />
+);
 
 export const BrandName = () => (
   <span className="brand-name"><span className="brand-ar">مستشارك</span><small className="brand-en">Mostshark</small></span>
@@ -52,20 +55,22 @@ export function AppShell({ nav, base }) {
             </NavLink>
           ))}
         </nav>
-        <div className="user-chip"><Avatar name={profile?.full_name} /><span className="small">{profile?.full_name}</span></div>
+        <div className="user-chip"><Avatar name={profile?.full_name} src={profile?.avatar_url} /><span className="small">{profile?.full_name}</span></div>
       </aside>
       <div className="main">
         <header className="topbar">
-          <div className="user-chip">
-            <Avatar name={profile?.full_name} />
-            <span className="small"><strong>{profile?.full_name}</strong><br /><span className="muted">{t('nav.' + (profile?.account_type || 'client'))}</span></span>
-          </div>
+          <span className="small muted topbar-role">{t('nav.' + (profile?.account_type || 'client'))}</span>
           <div className="grow" />
           <Button variant="ghost" size="sm" onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} aria-label="language">{lang === 'ar' ? 'English' : 'العربية'}</Button>
           <button className="btn btn-ghost bell" onClick={() => navigate(`${base}/notifications`)} aria-label={t('nav.notifications')}>
             🔔{unread > 0 && <span className="count">{unread > 99 ? '99+' : unread}</span>}
           </button>
           <Button variant="secondary" size="sm" onClick={async () => { await signOut(); navigate('/login'); }}>{t('auth.logout')}</Button>
+          {/* last in the bar = top-left corner in Arabic (RTL): photo + pencil opens the profile editor */}
+          <Link className="user-chip profile-edit" to={`${base}/profile`} title={t('profile.edit')} aria-label={t('profile.edit')}>
+            <span className="avatar-wrap"><Avatar name={profile?.full_name} src={profile?.avatar_url} /><span className="avatar-pen" aria-hidden="true">✏️</span></span>
+            <span className="small"><strong>{profile?.full_name}</strong></span>
+          </Link>
         </header>
         {isGuest && (
           <div className="guest-banner" role="note">
@@ -99,7 +104,11 @@ export function AppShell({ nav, base }) {
 
 export const CLIENT_NAV = [
   { to: '/client', end: true, icon: '💬', label: 'nav.my_consultations' },
+  { to: '/client/ask', icon: '❓', label: 'nav.ask' },
+  { to: '/client/assistant', icon: '🤖', label: 'nav.assistant' },
+  { to: '/client/directory', icon: '🧭', label: 'nav.directory' },
   { to: '/client/new', icon: '➕', label: 'nav.new_consultation' },
+  { to: '/client/about', icon: '🏛️', label: 'nav.about' },
   { to: '/client/profile', icon: '👤', label: 'nav.profile' },
 ];
 export const LAWYER_NAV = [
@@ -111,7 +120,7 @@ export const LAWYER_NAV = [
   { to: '/lawyer/consultations', icon: '💬', label: 'nav.consultations' },
   { to: '/lawyer/library', icon: '📚', label: 'nav.library' },
   { to: '/lawyer/templates', icon: '📄', label: 'nav.templates' },
-  { to: '/lawyer/directory', icon: '🧭', label: 'nav.directory' },
+  { to: '/lawyer/about', icon: '🏛️', label: 'nav.about' },
   { to: '/lawyer/profile', icon: '👤', label: 'nav.profile' },
 ];
 export const ADMIN_NAV = [
@@ -124,6 +133,8 @@ export const ADMIN_NAV = [
   { to: '/admin/settings', icon: '⚙️', label: 'nav.settings', perm: 'categories.manage' },
   { to: '/admin/reports', icon: '📈', label: 'nav.reports', perm: 'reports.read' },
   { to: '/admin/audit', icon: '🧾', label: 'nav.audit', perm: 'audit.read' },
+  { to: '/admin/directory', icon: '🧭', label: 'nav.directory', perm: 'lawyers.review' },
+  { to: '/admin/about', icon: '🏛️', label: 'nav.about' },
   { to: '/admin/profile', icon: '👤', label: 'nav.profile' },
 ];
 
